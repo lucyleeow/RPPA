@@ -4,15 +4,18 @@
 # Last modified: August 2018
 #######################################
 
-################
-# Helper function
-################
+################################################
+# Helper function - gives vector of correlations
+################################################
 spearmanRanks <- function(rankdf, c1){
   
-  # Takes in a df where there is a column called "AB" (which contains the names of ABs) and another column of ranks of each AB across all samples and returns a vector of spearman correlations between the ranks of all possible combinations of ABs.
+  # Takes in a df where there is a column called "AB" 
+  # (which contains the names of ABs) and another column of ranks of 
+  # each AB across all samples and returns a vector of spearman correlations 
+  # between the ranks of all possible combinations of ABs.
   
-  
-  # rankdf = dataframe of AB ranks. Each AB is ranked according to expression,     across all samples.
+  # rankdf = dataframe of AB ranks. Each AB is ranked according to expression,
+  # across all samples.
   # c1 = Name of the column containg the ranks. 
   
   

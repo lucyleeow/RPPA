@@ -245,14 +245,12 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
       if (aCurve[idxL] < aCurve[idxR])
       {
         adjust[i] <- (((mCurve[idxR] - mCurve[idxL])/(aCurve[idxR] - aCurve[idxL]))
-                      # This is just slopw: rise/run
+                      # This is just slope: rise/run
                       *(position[i] - aCurve[idxL]) + mCurve[idxL])
       }
     }
+    ## The above simply calculates the value of M at each position[i]
     
-    ###
-    # The above simply calculates the value of M at each position[i]
-    ###
     
     ### Apply lookup to data.  Can be applied to transformed or untransformed data. ###
     yPrime <- y - adjust[(A - sampleMin) / step + 1.5]
@@ -297,7 +295,7 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
   
   if (isItLogScaled == FALSE)
   {
-    # Convert.
+    # Convert back to unlogged
     Mnew <- 2^Mnew
   }
   
@@ -308,7 +306,7 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
     attr(data, "exprs")[,] <- Mnew[,]
   } else if (class(data) == "matrix")
   {
-    # Update matrix values.
+    # Update matrix values, keeping attributes
     data[,] <- Mnew[,]
   } else if (class(data)[[1]] == "ExpressionSet")
   {
