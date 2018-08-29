@@ -7,19 +7,19 @@
 ################################################
 # Helper function - gives vector of correlations
 ################################################
-spearmanRanks <- function(rankdf, c1){
+spearmanRanks <- function(
+  rankdf,    # Dataframe containing column of AB ranks and names of ABs
+  c1         # Name of the column containg the ranks
+  )
+  {
   
   # Takes in a df where there is a column called "AB" 
   # (which contains the names of ABs) and another column of ranks of 
-  # each AB across all samples and returns a vector of spearman correlations 
-  # between the ranks of all possible combinations of ABs.
+  # each AB (across all samples) and returns a vector of spearman correlations 
+  # between the ranks of all possible combinations of pairs of ABs.
   
-  # rankdf = dataframe of AB ranks. Each AB is ranked according to expression,
-  # across all samples.
-  # c1 = Name of the column containg the ranks. 
-  
-  
-  ABcomb <- combn(unique(rankdf$AB),2)
+
+    ABcomb <- combn(unique(rankdf$AB),2)
   # Create matrix of all possible combinations. Resulting matrix will have 2 rows   as we are choosing 2 from vector of unique ABs.
   
   c <- vector(mode = "double", length = dim(ABcomb)[2])
