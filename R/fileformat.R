@@ -1,0 +1,102 @@
+############################
+# tidyIinput 
+############################# 
+#
+# This function takes input RPPA data of format:
+# Col1          Col2..... Colx
+# Sample name   AB1       ABn
+# 
+# and:
+# 1. adds antibody name
+# 2. converts format into tidy data.
+#
+
+tidyInput <- function(
+  df,           # name of the df to turn into tidy format
+  ABnames,      # df containing the AB code-name conversions
+  Batch = "A",  # Batch of the run
+  reps = FALSE  # logical indicating whether there were technical 
+                # replicates which should be averaged
+){
+  
+  # check reps input
+  assertthat::assert_that(is.logical(reps), length(reps) == 1, 
+              msg = "Incorrect input for reps argument. Should be single logical.")
+  
+  numcols <- ncol(df)
+  
+  if (reps){
+    
+    tidydf <- df %>%
+      gather(2:numcols, key = "AB", value = "RFI") %>%
+      mutate(Batch = Batch) %>%
+      group_by(AB,X1) %>%
+      summarise(RFImean = mean(RFI, na.rm = TRUE))
+    
+    tidydf <- merge(tidydf, ABnames, by.x = "AB", by.y = "Ab.No.")
+    
+    return(tidydf)
+    
+    
+  } else {
+    
+  tidydf <- df %>%
+    gather(2:numcols, key = "AB", value = "RFI") %>%
+    mutate(Batch = Batch)
+  
+  tidydf <- merge(tidydf, ABnames, by.x = "AB", by.y = "Ab.No.")
+  
+  return(tidydf)
+  
+  }
+}
+
+############################
+# matIinput 
+############################# 
+#
+# This function turns tidy dataframe of RPPA data into a matrix, 
+# with row = AB's and columns = Samples. Rownames are AB codes
+# 
+
+matInput <- function(
+  tidydf,       # name of the tidydf to turn into tidy format
+  logdata,      # logical indicating whether the RFI values should be log2'ed
+  reps = FALSE   # logical indicating whether there were replicates
+){
+  
+  # check reps input
+  
+  assertthat::assert_that(
+    is.logical(reps), length(reps) == 1, 
+    msg = "Incorrect input for reps argument. Should be single logical."
+  )
+  
+  # determine column name of RFI
+  
+  if (reps){
+    colRFI <- "RFImean"
+  } else {
+    colRFI <- "RFI"
+  }
+  
+  # make matrix
+  
+  mat <- as.matrix(
+    tidydf %>%
+      select(X1, AB, colRFI) %>%
+      spread(key = AB, value = colRFI)
+    )
+
+  rownames(mat) <- mat[,1]
+  mat <- mat[,-1]
+  mode(mat) <- "numeric"
+  mat <- t(mat)
+
+  if (logdata){
+    mat <- log2(mat + 0.00001)
+  }
+  
+  return(mat)
+  
+}
