@@ -14,9 +14,9 @@
 tidyInput <- function(
   df,           # name of the df to turn into tidy format
   ABnames,      # df containing the AB code-name conversions
-  Batch = "A",  # Batch of the run
+  Batch = "A",  # Batch code of the run
   reps = FALSE  # logical indicating whether there were technical 
-                # replicates which should be averaged
+                # replicates which will be averaged
 ){
   
   # check reps input
@@ -29,9 +29,9 @@ tidyInput <- function(
     
     tidydf <- df %>%
       gather(2:numcols, key = "AB", value = "RFI") %>%
-      mutate(Batch = Batch) %>%
       group_by(AB,X1) %>%
-      summarise(RFImean = mean(RFI, na.rm = TRUE))
+      summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
+      mutate(Batch = Batch)
     
     tidydf <- merge(tidydf, ABnames, by.x = "AB", by.y = "Ab.No.")
     
@@ -60,32 +60,16 @@ tidyInput <- function(
 # 
 
 matInput <- function(
-  tidydf,       # name of the tidydf to turn into tidy format
-  logdata,      # logical indicating whether the RFI values should be log2'ed
-  reps = FALSE   # logical indicating whether there were replicates
+  tidydf,       # name of the tidydf to turn into matrix format
+  logdata      # logical indicating whether the RFI values should be log2'ed
 ){
-  
-  # check reps input
-  
-  assertthat::assert_that(
-    is.logical(reps), length(reps) == 1, 
-    msg = "Incorrect input for reps argument. Should be single logical."
-  )
-  
-  # determine column name of RFI
-  
-  if (reps){
-    colRFI <- "RFImean"
-  } else {
-    colRFI <- "RFI"
-  }
   
   # make matrix
   
   mat <- as.matrix(
     tidydf %>%
-      select(X1, AB, colRFI) %>%
-      spread(key = AB, value = colRFI)
+      select(X1, AB, RFI) %>%
+      spread(key = AB, value = RFI)
     )
 
   rownames(mat) <- mat[,1]
@@ -93,6 +77,8 @@ matInput <- function(
   mode(mat) <- "numeric"
   mat <- t(mat)
 
+  # log result adding prior of 0.00001 to avoid taking log of 0
+  
   if (logdata){
     mat <- log2(mat + 0.00001)
   }
@@ -100,3 +86,4 @@ matInput <- function(
   return(mat)
   
 }
+

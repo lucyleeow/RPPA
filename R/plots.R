@@ -10,35 +10,18 @@
 ############################
 
 RFIperAB <- function(
-  df,            # dataframe to plot
-  reps = FALSE   # logical indicated whether there were replicates
+  df,               # dataframe to plot
+  RFIcol = "RFI"    # name of the RFI column
 ) {
-  
-  
-  # check reps input
-  
-  assertthat::assert_that(
-    is.logical(reps), length(reps) == 1, 
-    msg = "Incorrect input for reps argument. Should be single logical."
-    )
-  
-  
-  # determine column name of RFI
-  
-  if (reps){
-    colRFI <- "RFImean"
-  } else {
-    colRF <- "RFI"
-  }
   
   # make plot
   
-    ggplot(df, aes_string(y=colRFI, x="Antibody.Name")) + 
+    ggplot(df, aes_string(y=RFIcol, x="Antibody.Name")) + 
       geom_boxplot() + 
       labs(title = "RFI per AB", y = "RFI", x = "Antibody") +
       coord_flip() +
       theme(plot.title = element_text(hjust = 0.5), title = element_text(size=16),
-            axis.text.y = element_text(size = 14))
+            axis.text.y = element_text(size = 11))
  
 }
 
@@ -47,33 +30,19 @@ RFIperAB <- function(
 #################################
 
 RFIperSample <- function(
-  df,            # dataframe to plot
-  reps = FALSE   # logical indicated whether there were replicates
+  df,               # dataframe to plot
+  RFIcol = "RFI"    # name of the RFI column
 ) {
   
-  # check reps input
-  
-  assertthat::assert_that(
-    is.logical(reps), length(reps) == 1, 
-    msg = "Incorrect input for reps argument. Should be single logical."
-  )
-  
-  # determine column name of RFI
-  
-  if (reps){
-    colRFI <- "RFImean"
-  } else {
-    colRF <- "RFI"
-  }
-  
+
   # make plot
   
-  ggplot(df, aes_string(y=colRFI, x="X1")) + 
+  ggplot(df, aes_string(y=RFIcol, x="X1")) + 
     geom_boxplot() + 
     labs(title = "RFI per Sample", y = "RFI", x = "Sample") +
     coord_flip() +
     theme(plot.title = element_text(hjust = 0.5), title = element_text(size=16),
-          axis.text.y = element_text(size = 14))
+          axis.text.y = element_text(size = 11))
 }
 
 
@@ -82,21 +51,23 @@ RFIperSample <- function(
 ###########################################
 
 plotperSample <- function(
-  df      # dataframe to plot
+  df,               # dataframe to plot
+  RFIcol = "RFI"    # name of the RFI column
   ){
   
+  # number of unique samples
   numSample <- length(unique(df$X1))
   
   for(i in 1:numSample){
    
      print(
       df %>%
-        filter(X1 == df$X1[i]) %>%    # filter for only sample i
-        ggplot(aes(y=RFI,x=Antibody.Name)) + 
+        filter(X1 == unique(df$X1)[i]) %>%    # filter for only sample i
+        ggplot(aes_string(y=RFIcol,x="Antibody.Name")) + 
         geom_bar(stat = "identity") +
         labs(title = df$X1[i], y = "Average RFI", x = "Antibody") +
         theme(plot.title = element_text(hjust = 0.5),
-              title = element_text(size=14)) +
+              title = element_text(size=11)) +
         coord_flip()
     )
   }
@@ -110,22 +81,24 @@ plotperSample <- function(
 ##################################
 
 plotperAB <- function(
-  df      # dataframe to plot
+  df,               # dataframe to plot
+  RFIcol = "RFI"    # name of the RFI column
 ){
   
-  numAB <- length(unique(df$AB))
+  # number of unique antibodies
+  numAB <- length(unique(df$Antibody.Name))
   
   for(i in 1:numAB){
     
     print(
       df %>%
-        filter(Antibody.Name == df$Antibody.Name[i]) %>%    # filter for only sample i
-        ggplot(aes(y=RFI,x=X1)) + 
+        filter(Antibody.Name == unique(df$Antibody.Name)[i]) %>%    # filter for only sample i
+        ggplot(aes_string(y=RFIcol,x="X1")) + 
         geom_bar(stat = "identity") +
-        labs(title = df$Antibody.Name[i], y = "RFI", 
+        labs(title = unique(df$Antibody.Name)[i], y = "RFI", 
              x = "Sample") +
         theme(plot.title = element_text(hjust = 0.5),
-              title = element_text(size=14)) +
+              title = element_text(size=11)) +
         coord_flip()
     )
   }
