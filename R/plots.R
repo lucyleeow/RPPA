@@ -11,17 +11,28 @@
 
 RFIperAB <- function(
   df,               # dataframe to plot
-  RFIcol = "RFI"    # name of the RFI column
+  RFIcol = "RFI",   # name of the RFI column
+  fillby            # optional argument. Fill by column
 ) {
   
-  # make plot
+  if (missing(fillby)){
+    
+    gg <- ggplot(df, aes_string(y=RFIcol, x="Antibody.Name"))
+    
+  } else{
+    
+    gg <- ggplot(df, aes_string(y=RFIcol, x="Antibody.Name", fill=fillby))
+  }
   
-    ggplot(df, aes_string(y=RFIcol, x="Antibody.Name")) + 
-      geom_boxplot() + 
-      labs(title = "RFI per AB", y = "RFI", x = "Antibody") +
-      coord_flip() +
-      theme(plot.title = element_text(hjust = 0.5), title = element_text(size=16),
-            axis.text.y = element_text(size = 11))
+  # make rest of plot
+   
+  gg +
+    geom_boxplot() + 
+    labs(title = "RFI per AB", y = "RFI", x = "Antibody") +
+    coord_flip() +
+    theme(plot.title = element_text(hjust = 0.5), 
+          title = element_text(size=16),
+          axis.text.y = element_text(size = 11))
  
 }
 
@@ -31,17 +42,27 @@ RFIperAB <- function(
 
 RFIperSample <- function(
   df,               # dataframe to plot
-  RFIcol = "RFI"    # name of the RFI column
+  RFIcol = "RFI",   # name of the RFI column
+  fillby            # optional argument. Fill by column
 ) {
   
-
+  if (missing(fillby)){
+    
+    gg <- ggplot(df, aes_string(y=RFIcol, x="X1"))
+    
+  } else{
+    
+    gg <- ggplot(df, aes_string(y=RFIcol, x="X1", fill=fillby))
+  }
+  
   # make plot
   
-  ggplot(df, aes_string(y=RFIcol, x="X1")) + 
+  gg + 
     geom_boxplot() + 
     labs(title = "RFI per Sample", y = "RFI", x = "Sample") +
     coord_flip() +
-    theme(plot.title = element_text(hjust = 0.5), title = element_text(size=16),
+    theme(plot.title = element_text(hjust = 0.5), 
+          title = element_text(size=16),
           axis.text.y = element_text(size = 11))
 }
 
@@ -65,9 +86,10 @@ plotperSample <- function(
         filter(X1 == unique(df$X1)[i]) %>%    # filter for only sample i
         ggplot(aes_string(y=RFIcol,x="Antibody.Name")) + 
         geom_bar(stat = "identity") +
-        labs(title = df$X1[i], y = "Average RFI", x = "Antibody") +
+        labs(title = unique(df$X1)[i], y = "Average RFI", x = "Antibody") +
         theme(plot.title = element_text(hjust = 0.5),
-              title = element_text(size=11)) +
+              title = element_text(size=11), 
+              axis.text.y = element_text(size = 6)) +
         coord_flip()
     )
   }

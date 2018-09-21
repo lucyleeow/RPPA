@@ -15,40 +15,43 @@ tidyInput <- function(
   df,           # name of the df to turn into tidy format
   ABnames,      # df containing the AB code-name conversions
   Batch = "A",  # Batch code of the run
-  reps = FALSE  # logical indicating whether there were technical 
-                # replicates which will be averaged
+  reps = FALSE, # logical indicating whether there were technical. Replicates which will be averaged
+  pheno         # optional argument. Name of the phenotype df to be merged      
 ){
   
   # check reps input
   assertthat::assert_that(is.logical(reps), length(reps) == 1, 
               msg = "Incorrect input for reps argument. Should be single logical.")
   
+  # gather data
+  
   numcols <- ncol(df)
+  
+  gather_df <- df %>%
+    gather(2:numcols, key = "AB", value = "RFI") %>%
+    mutate(Batch = Batch)
   
   if (reps){
     
-    tidydf <- df %>%
-      gather(2:numcols, key = "AB", value = "RFI") %>%
+    gather_df <- gather_df %>%
       group_by(AB,X1) %>%
       summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
       mutate(Batch = Batch)
     
-    tidydf <- merge(tidydf, ABnames, by.x = "AB", by.y = "Ab.No.")
-    
-    return(tidydf)
-    
-    
-  } else {
-    
-  tidydf <- df %>%
-    gather(2:numcols, key = "AB", value = "RFI") %>%
-    mutate(Batch = Batch)
+  } 
   
-  tidydf <- merge(tidydf, ABnames, by.x = "AB", by.y = "Ab.No.")
+  # merge ABnames data
+  tidydf <- merge(gather_df, ABnames, by.x = "AB", by.y = "Ab.No.")
+  
+  # merge pheno data, if input given
+  if (! missing(pheno)){
+    
+    tidydf <- merge(tidydf, pheno, by.x = "X1", by.y = "Lysate.ID")
+    
+  }
   
   return(tidydf)
   
-  }
 }
 
 ############################
