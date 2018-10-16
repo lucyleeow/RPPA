@@ -1,6 +1,16 @@
+###################################################
+# Functions to clean/format RPPA data from excel
+# Author: Lucy Liu
+###################################################
+
+############################
+# Comparison 
+############################
+
+
 ############################
 # tidyIinput 
-############################# 
+############################ 
 #
 # This function takes input RPPA data of format:
 # Col1          Col2..... Colx
@@ -19,10 +29,31 @@ tidyInput <- function(
   pheno         # optional argument. Name of the phenotype df to be merged      
 ){
   
-  # check reps input
-  assertthat::assert_that(is.logical(reps), length(reps) == 1, 
-              msg = "Incorrect input for reps argument. Should be single logical.")
+  # check argument inputs
   
+  ## check df  
+  ## check that the first column is called 'X1' and that there are >1 cols
+  assertthat::assert_that(colnames(df)[1] == "X1", dim(df)[2] > 1,
+                          msg = "Check 'df' dataframe")
+  
+  ## check ABnames
+  assertthat::assert_that(
+    sum(colnames(ABnames) %in% c("Antibody.Name","Ab.No.")) == 2,
+    dim(ABnames)[2] == 2,
+    msg = "Check column names in 'ABnames' dataframe")
+  
+  ## check ABnames
+  assertthat::assert_that(length(Batch) == 1,
+                          msg = "Batch should be a vector of 1")
+  
+  ## check reps input
+  assertthat::assert_that(is.logical(reps), length(reps) == 1,
+              msg = "Check 'reps' is a single logical.")
+
+  ## check pheno
+  assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
+                              msg = "Check pheno dataframe has one 'Lysate.ID' column")
+
   # gather data
   
   numcols <- ncol(df)

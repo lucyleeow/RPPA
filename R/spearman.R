@@ -1,7 +1,6 @@
 #######################################
 # Pairwise correlation coefficient plot
 # Author: Lucy Liu
-# Last modified: August 2018
 #######################################
 
 ################################################
