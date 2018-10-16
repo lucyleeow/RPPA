@@ -48,17 +48,18 @@ designMatrix <- function(
 #
 
 tidyInput <- function(
-  df,           # name of the df to turn into tidy format
-  ABnames,      # df containing the AB code-name conversions
-  Batch = "A",  # Batch code of the run
-  reps = FALSE, # logical indicating whether there were technical. Replicates which will be averaged
-  pheno         # optional argument. Name of the phenotype df to be merged      
+  df,               # name of the df to turn into tidy format
+  ABnames,          # df containing the AB code-name conversions
+  Batch = "A",      # Batch code of the run
+  ave_reps = FALSE, # logical indicating whether technical 
+                    # replicates should be averaged
+  pheno             # optional argument. Name of the phenotype df to be merged      
 ){
   
   # check argument inputs
   
-  ## check df  
-  ## check that the first column is called 'X1' and that there are >1 cols
+  ## check that the first column of df is called 'X1' and 
+  ## that there are >1 cols
   assertthat::assert_that(colnames(df)[1] == "X1", dim(df)[2] > 1,
                           msg = "Check 'df' dataframe")
   
@@ -68,17 +69,20 @@ tidyInput <- function(
     dim(ABnames)[2] == 2,
     msg = "Check column names in 'ABnames' dataframe")
   
-  ## check ABnames
+  ## check Batch
   assertthat::assert_that(length(Batch) == 1,
                           msg = "Batch should be a vector of 1")
   
-  ## check reps input
-  assertthat::assert_that(is.logical(reps), length(reps) == 1,
-              msg = "Check 'reps' is a single logical.")
+  ## check ave_reps input
+  assertthat::assert_that(is.logical(ave_reps), length(ave_reps) == 1,
+              msg = "Check 'ave_reps' is a single logical")
 
   ## check pheno
-  assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
+  if (! missing(pheno)){
+    assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
                               msg = "Check pheno dataframe has one 'Lysate.ID' column")
+  }
+  
 
   # gather data
   
@@ -88,7 +92,7 @@ tidyInput <- function(
     gather(2:numcols, key = "AB", value = "RFI") %>%
     mutate(Batch = Batch)
   
-  if (reps){
+  if (ave_reps){
     
     gather_df <- gather_df %>%
       group_by(AB,X1) %>%
@@ -121,11 +125,35 @@ tidyInput <- function(
 
 matInput <- function(
   tidydf,       # name of the tidydf to turn into matrix format
-  logdata      # logical indicating whether the RFI values should be log2'ed
+  logdata,      # logical indicating whether the RFI values should be log2'ed
+  tech_reps     # logical indicating whether there are technical
+                # replicates (which are named the same)
 ){
   
-  # make matrix
+  # check inputs
+  assertthat::assert_that(is.logical(logdata),
+                          length(logdata) == 1,
+                          msg = "Check 'logdata' is a single logical")
   
+  assertthat::assert_that(is.logical(tech_reps),
+                          length(tech_reps) == 1,
+                          msg = "Check 'tech_reps' is a single logical")
+  
+  
+  # create unqiue sample names if there are technical replicates
+  if (tech_reps){
+    
+    tidydf <- tidydf %>%
+      group_by(X1, AB) %>%
+      mutate(X2 = paste(X1, row_number(), sep = "_")) %>%
+      ungroup() %>%
+      select(-X1) %>%
+      rename(X1 = X2)
+    
+  }
+  
+  
+  # make matrix
   mat <- as.matrix(
     tidydf %>%
       select(X1, AB, RFI) %>%
