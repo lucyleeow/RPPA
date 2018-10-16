@@ -34,7 +34,6 @@ designMatrix <- function(
 }
 
 
-
 ############################
 # tidyIinput 
 ############################ 
@@ -113,7 +112,7 @@ tidyInput <- function(
 }
 
 ############################
-# matIinput 
+# matInput 
 ############################# 
 #
 # This function turns tidy dataframe of RPPA data into a matrix, 

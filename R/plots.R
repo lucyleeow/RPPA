@@ -12,7 +12,7 @@
 RFIperAB <- function(
   df,               # dataframe to plot
   RFIcol = "RFI",   # name of the RFI column
-  fillby            # optional argument. Fill by column
+  fillby            # optional argument. ggplot aes 'fill' argument
 ) {
   
   if (missing(fillby)){
@@ -43,7 +43,7 @@ RFIperAB <- function(
 RFIperSample <- function(
   df,               # dataframe to plot
   RFIcol = "RFI",   # name of the RFI column
-  fillby            # optional argument. Fill by column
+  fill_by          # optional argument. ggplot aes 'fill' argument
 ) {
   
   if (missing(fillby)){
@@ -52,7 +52,7 @@ RFIperSample <- function(
     
   } else{
     
-    gg <- ggplot(df, aes_string(y=RFIcol, x="X1", fill=fillby))
+    gg <- ggplot(df, aes_string(y=RFIcol, x="X1", fill=fill_by))
   }
   
   # make plot
@@ -73,11 +73,19 @@ RFIperSample <- function(
 
 plotperSample <- function(
   df,               # dataframe to plot
-  RFIcol = "RFI"    # name of the RFI column
+  RFIcol = "RFI",   # name of the RFI column
+  pdfoutput = TRUE  # logical indicating whether the plots should be
+                    # output to separate pdf file
   ){
   
   # number of unique samples
   numSample <- length(unique(df$X1))
+  
+  
+  # make plot
+  if (pdfoutput){
+    pdf("RFI_barplots/plotPerSample.pdf")
+  }
   
   for(i in 1:numSample){
    
@@ -94,7 +102,10 @@ plotperSample <- function(
     )
   }
 
-
+  if (pdfoutput){
+    dev.off()
+  }
+  
 }
 
 
@@ -104,11 +115,20 @@ plotperSample <- function(
 
 plotperAB <- function(
   df,               # dataframe to plot
-  RFIcol = "RFI"    # name of the RFI column
+  RFIcol = "RFI",   # name of the RFI column
+  pdfoutput = TRUE  # logical indicating whether the plots should be
+                    # output to separate pdf file
 ){
   
   # number of unique antibodies
   numAB <- length(unique(df$Antibody.Name))
+  
+  
+  # make plot
+  if (pdfoutput){
+    pdf("RFI_barplots/plotPerAB.pdf")
+  }
+  
   
   for(i in 1:numAB){
     
@@ -123,6 +143,10 @@ plotperAB <- function(
               title = element_text(size=11)) +
         coord_flip()
     )
+  }
+  
+  if (pdfoutput){
+    dev.off()
   }
   
 }
