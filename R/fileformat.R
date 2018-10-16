@@ -3,9 +3,36 @@
 # Author: Lucy Liu
 ###################################################
 
-############################
-# Comparison 
-############################
+#####################################
+# Create design matrix for comparisons
+#####################################
+
+
+designMatrix <- function(
+  df,            # df of each comparison to be made
+  colsPerCond    # number of columns per condition
+){
+  
+  assertthat::assert_that(is.numeric(colsPerCond), 
+                          length(colsPerCond) == 1,
+                          msg = "Check 'colsPerCond' is a single number")
+  
+  # create condition1 column
+  df$condition1 <- 
+    do.call(paste, c(df[,1:colsPerCond], sep = "_"))
+  
+  df$condition2 <- 
+    do.call(paste, c(df[,(colsPerCond+1):(2*colsPerCond)], 
+                     sep = "_"))
+  
+  # keep only condition1 and condition2 columns
+  
+  df <- df[ , colnames(df) %in% c("condition1", "condition2")]
+  
+  return(df)
+  
+}
+
 
 
 ############################

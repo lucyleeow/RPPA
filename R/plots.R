@@ -1,9 +1,9 @@
-###############
+#############################################
 # RPPA Plots
-###############
-
 # These functions generate plots for RPPA data
-
+#
+# Author: Lucy Liu
+#############################################
 
 ############################
 # RFI for each AB - 1 plot

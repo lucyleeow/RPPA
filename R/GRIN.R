@@ -1,6 +1,6 @@
-#####################################
+#################################################
 # Global rank invariant normalisation
-#####################################
+#
 # This function performs global rank invariant normalisation, as described by
 # Pelz et al. 
 # The paper can be found here:
@@ -8,7 +8,8 @@
 # This code was taken from the above paper. Some minor changes have been made
 # to allow it to be used for RPPA data. Changes are marked with LL (Lucy Liu)
 #
-
+# Author: Lucy Liu
+#################################################
 
 #############################################
 # Helper function to setup plotting to file.
