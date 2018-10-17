@@ -58,26 +58,20 @@ tidyInput <- function(
   
   # check argument inputs
   
-  ## check that the first column of df is called 'X1' and 
-  ## that there are >1 cols
   assertthat::assert_that(colnames(df)[1] == "X1", dim(df)[2] > 1,
                           msg = "Check 'df' dataframe")
   
-  ## check ABnames
   assertthat::assert_that(
     sum(colnames(ABnames) %in% c("Antibody.Name","Ab.No.")) == 2,
     dim(ABnames)[2] == 2,
     msg = "Check column names in 'ABnames' dataframe")
   
-  ## check Batch
   assertthat::assert_that(length(Batch) == 1,
-                          msg = "Batch should be a vector of 1")
+                          msg = "Batch should have length of 1")
   
-  ## check ave_reps input
   assertthat::assert_that(is.logical(ave_reps), length(ave_reps) == 1,
               msg = "Check 'ave_reps' is a single logical")
 
-  ## check pheno
   if (! missing(pheno)){
     assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
                               msg = "Check pheno dataframe has one 'Lysate.ID' column")
@@ -85,7 +79,6 @@ tidyInput <- function(
   
 
   # gather data
-  
   numcols <- ncol(df)
   
   gather_df <- df %>%
@@ -102,13 +95,15 @@ tidyInput <- function(
   } 
   
   # merge ABnames data
-  tidydf <- merge(gather_df, ABnames, by.x = "AB", by.y = "Ab.No.")
+  tidydf <- merge(gather_df, ABnames, by.x = "AB", by.y = "Ab.No.",
+                  all.x = TRUE, all.y = FALSE)
   
   # merge pheno data, if input given
   if (! missing(pheno)){
-    
-    tidydf <- merge(tidydf, pheno, by.x = "X1", by.y = "Lysate.ID")
-    
+
+    tidydf <- merge(tidydf, pheno, by.x = "X1", by.y = "Lysate.ID",
+                    all.x = TRUE, all.y = FALSE)
+
   }
   
   return(tidydf)
