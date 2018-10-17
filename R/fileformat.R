@@ -25,12 +25,12 @@ inputPheno <- function(
                           msg = "Check that 'path' is single string")      
   
   if (! missing(col_remove)){
-    assertthat::assert_that(is.integer(col_remove),
+    assertthat::assert_that(is.numeric(col_remove),
                             msg = "Check 'col_remove' is of integer type")
   }
   
   if (! missing(condition_cols)){
-    assertthat::assert_that(is.integer(condition_cols),
+    assertthat::assert_that(is.numeric(condition_cols),
                             msg = "Check 'condition_cols' is of integer type")
   }
   
