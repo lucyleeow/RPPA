@@ -53,7 +53,7 @@ inputPheno <- function(
   # create condition column
   if (! missing(condition_cols)){
     
-    df$condition <- do.call(paste, c(df[,condition_cols],
+    df$Condition <- do.call(paste, c(df[,condition_cols],
                                      sep = "_"))
     
   }
