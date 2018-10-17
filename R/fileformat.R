@@ -3,31 +3,64 @@
 # Author: Lucy Liu
 ###################################################
 
+library(openxlsx)
+library(tidyverse)
+
+
 #####################################
 # Create design matrix for comparisons
 #####################################
 
-
-designMatrix <- function(
-  df,            # df of each comparison to be made
-  colsPerCond    # number of columns per condition
+inputPheno <- function(
+  path,            # path of the phenotype xlsx file
+  sheet,           # sheet of xlsx file to read in
+  col_remove,      # optional argument. column number(s) to remove
+  condition_cols   # optional argument. column number(s) to paste 
+                   # together to create 'condition' column
 ){
   
-  assertthat::assert_that(is.numeric(colsPerCond), 
-                          length(colsPerCond) == 1,
-                          msg = "Check 'colsPerCond' is a single number")
+  # check inputs
+  assertthat::assert_that(is.character(path), 
+                          length(path) == 1,
+                          msg = "Check that 'path' is single string")      
   
-  # create condition1 column
-  df$condition1 <- 
-    do.call(paste, c(df[,1:colsPerCond], sep = "_"))
+  if (! missing(col_remove)){
+    assertthat::assert_that(is.integer(col_remove),
+                            msg = "Check 'col_remove' is of integer type")
+  }
   
-  df$condition2 <- 
-    do.call(paste, c(df[,(colsPerCond+1):(2*colsPerCond)], 
-                     sep = "_"))
+  if (! missing(condition_cols)){
+    assertthat::assert_that(is.integer(condition_cols),
+                            msg = "Check 'condition_cols' is of integer type")
+  }
   
-  # keep only condition1 and condition2 columns
   
-  df <- df[ , colnames(df) %in% c("condition1", "condition2")]
+  # read in sheet
+  df <- read.xlsx(path, sheet = sheet)
+  
+  assertthat::assert_that(sum(colnames(df) %in% c("Lysate.ID")) == 1,
+                          msg = "Check that your sheet contains a 'Lysate.ID' column")
+  
+  
+  # remove unwanted columns
+  if (! missing(col_remove)){
+    
+    df <- df[, -col_remove]
+    
+  }
+  
+  
+  # create condition column
+  if (! missing(condition_cols)){
+    
+    df$condition <- do.call(paste, c(df[,condition_cols],
+                                     sep = "_"))
+    
+  }
+
+  # remove duplicates
+  df <- df[! duplicated(df$Lysate.ID),]
+  
   
   return(df)
   
@@ -47,7 +80,7 @@ designMatrix <- function(
 # 2. converts format into tidy data.
 #
 
-tidyInput <- function(
+tidyData <- function(
   df,               # name of the df to turn into tidy format
   ABnames,          # df containing the AB code-name conversions
   Batch = "A",      # Batch code of the run
@@ -65,12 +98,13 @@ tidyInput <- function(
     sum(colnames(ABnames) %in% c("Antibody.Name","Ab.No.")) == 2,
     dim(ABnames)[2] == 2,
     msg = "Check column names in 'ABnames' dataframe")
-  
+
   assertthat::assert_that(length(Batch) == 1,
                           msg = "Batch should have length of 1")
-  
-  assertthat::assert_that(is.logical(ave_reps), length(ave_reps) == 1,
-              msg = "Check 'ave_reps' is a single logical")
+
+  assertthat::assert_that(is.logical(ave_reps),
+                          length(ave_reps) == 1,
+                          msg = "Check 'ave_reps' is a single logical")
 
   if (! missing(pheno)){
     assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
