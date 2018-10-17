@@ -33,7 +33,7 @@ calcFC <- function(
   
   
   num_comparisons <- nrow(comparisons)
-  num_Abs <- length(unique(tidydf$AB))
+  num_ABs <- length(unique(tidydf$AB))
   
   # convert to wide format
   wide_df <- tidydf %>%
@@ -60,37 +60,44 @@ calcFC <- function(
       
       fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] - 
         numeric_mat[rownames(numeric_mat) == cond1]
-      
-    }else{
-      
-      for (i in 1:nrow(comparisons)){
-        
-        cond1 <- comparisons[i,1]
-        cond2 <- comparisons[i,2]
-        
-        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] / 
-          numeric_mat[rownames(numeric_mat) == cond1]
-      
-      }
-      
-      
-      
+    }
+  }
+  else{
     
-    fc_df <- as.data.frame(fc_mat)
-      colnames(fc_df) <- colnames(wide_df)[-1]
-      
-      condition <- vector(mode = "character", length = nrow(comparisons))
-      
-      for (i in 1:nrow(comparisons)){
+    for (i in 1:nrow(comparisons)){
         
-        condition[i] <- pheno[pheno$Lysate.ID == comparisons[i,2], "Condition"]
+      cond1 <- comparisons[i,1]
+      cond2 <- comparisons[i,2]
         
-      }
+      fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] / 
+        numeric_mat[rownames(numeric_mat) == cond1]
       
-      fc_df$Condition <- condition
+    }
+  }
+  
+  ## convert back to df
+  fc_df <- as.data.frame(fc_mat)
+  ## add AB names
+  colnames(fc_df) <- colnames(wide_df)[-1]
       
-      fc_df <- fc_df %>%
-        gather(1:num_Abs, key = "AB", value = "FoldChange") 
+  ## add conditions column
+  condition <- vector(mode = "character", length = nrow(comparisons))
+      
+  for (i in 1:nrow(comparisons)){
+    
+    condition[i] <- pheno[pheno$Lysate.ID == comparisons[i,2], "Condition"]
+    
+  }
+  
+  fc_df$Condition <- condition
+      
+  # change to long form
+  fc_df <- fc_df %>%
+    gather(1:num_Abs, key = "AB", value = "FoldChange") 
+  
+  
+  return(fc_df)
+      
   }
   
 
