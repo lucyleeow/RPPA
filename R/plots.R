@@ -10,7 +10,7 @@
 ############################
 
 RFIperAB <- function(
-  df,               # dataframe to plot
+  df,               # tidy df to plot
   RFIcol = "RFI",   # name of the RFI column
   fillby            # optional argument. ggplot aes 'fill' argument
 ) {
@@ -41,9 +41,9 @@ RFIperAB <- function(
 #################################
 
 RFIperSample <- function(
-  df,               # dataframe to plot
+  df,               # tidy df to plot
   RFIcol = "RFI",   # name of the RFI column
-  fill_by          # optional argument. ggplot aes 'fill' argument
+  fill_by           # optional argument. ggplot aes 'fill' argument
 ) {
   
   if (missing(fillby)){
@@ -72,7 +72,7 @@ RFIperSample <- function(
 ###########################################
 
 plotperSample <- function(
-  df,               # dataframe to plot
+  df,               # tidy df to plot
   RFIcol = "RFI",   # name of the RFI column
   pdfoutput = TRUE  # logical indicating whether the plots should be
                     # output to separate pdf file
@@ -114,7 +114,7 @@ plotperSample <- function(
 ##################################
 
 plotperAB <- function(
-  df,               # dataframe to plot
+  df,               # tidy df to plot
   RFIcol = "RFI",   # name of the RFI column
   pdfoutput = TRUE  # logical indicating whether the plots should be
                     # output to separate pdf file
