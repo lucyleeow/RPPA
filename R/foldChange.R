@@ -17,8 +17,6 @@ calcFC <- function(
                 # names
   log = FALSE   # logical indicating whether RFI values should be 
                 # log2'ed before calculated foldchange
-  
-  
 ){
   
   # check inputs
