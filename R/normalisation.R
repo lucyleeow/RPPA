@@ -24,13 +24,18 @@ norm_med <- function(
 ){
   
   # check inputs
-  assertthat::assert_that()
+  assertthat::assert_that(sum(c("X1", "AB", "RFI") %in% colnames(df)) == 3,
+                              msg = "Check 'df' has 'X1', 'AB', 'RFI' columns")
+  
+  assertthat::assert_that(nrow(unique(df[,c("X1","AB")])) == nrow(df),
+                          msg = "Check that there are no technical replicates")
+  
   
   norm_df <- df %>%
     group_by(X1) %>%
     mutate(med = median(RFI)) %>%
     ungroup() %>%
-    mutate(MN = RFI/med) %>%
+    mutate(RFI = RFI/med) %>%
     select(-med)
   
   

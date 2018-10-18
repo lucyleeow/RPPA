@@ -47,6 +47,10 @@ calcFC <- function(
       msg = "Check column names in 'ABnames' dataframe")
   }
   
+  # convert to data.frame
+  if (sum(class(tidydf) %in% "tbl_df") >= 1){
+    tidydf <- as.data.frame(tidydf)
+  }
   
   # obtain number of comparisons and ABs
   num_comparisons <- nrow(comparisons)
@@ -80,13 +84,13 @@ calcFC <- function(
         
         # subtract if log
         fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] - 
-          numeric_mat[rownames(numeric_mat) == cond1]
+          numeric_mat[rownames(numeric_mat) == cond1,]
         
       } else {
         
         # divide if raw
         fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] / 
-          numeric_mat[rownames(numeric_mat) == cond1]
+          numeric_mat[rownames(numeric_mat) == cond1,]
         
       }
   }
@@ -162,7 +166,6 @@ plot_fc <- function(
   
   
   # create titles
-  
   ylab <- "Fold Change"
   
   if (logged){
@@ -177,7 +180,9 @@ plot_fc <- function(
     
   }
   
-    
+  # number of comparisions
+  num_comparisions <- nrow(comparisons)
+  
   # main plot
   gg <- fc_df %>%
     filter(Sample2 %in% samples) %>%
@@ -186,7 +191,8 @@ plot_fc <- function(
     geom_bar(stat = "identity", position = "dodge") +
     labs(title = "Fold change per antibody", x = "Antibody", 
          y = ylab) +
-    scale_fill_discrete(name = "Sample & Condition") +
+    scale_fill_manual(values = pal2[1:num_comparisions],
+                      name = "Sample & Condition") +
     theme(plot.title = element_text(hjust = 0.5))
   
   
