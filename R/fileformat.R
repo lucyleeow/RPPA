@@ -95,7 +95,7 @@ tidyData <- function(
                           msg = "Check 'df' dataframe")
   
   assertthat::assert_that(
-    sum(colnames(ABnames) %in% c("Antibody.Name","Ab.No.")) == 2,
+    sum(c("Antibody.Name","Ab.No.") %in% colnames(ABnames)) == 2,
     dim(ABnames)[2] == 2,
     msg = "Check column names in 'ABnames' dataframe")
 
