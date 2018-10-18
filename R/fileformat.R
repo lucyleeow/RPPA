@@ -152,7 +152,7 @@ tidyData <- function(
 # with row = AB's and columns = Samples. Rownames are AB codes
 # 
 
-matInput <- function(
+df_to_mat <- function(
   tidydf,       # name of the tidydf to turn into matrix format
   logdata,      # logical indicating whether the RFI values should be log2'ed
   tech_reps     # logical indicating whether there are technical
