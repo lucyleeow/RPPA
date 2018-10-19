@@ -1,0 +1,20 @@
+Package: RPPA
+Title: Analyse RPPA Data From Zeptosens System
+Version: 0.0.0.9000
+Authors@R: person("Lucy", "Liu", email = "jliu176@gmail.com", 
+                  role = c("aut", "cre"))
+Description: R functions for cleaning RPPA data output by 
+  the Zeptosens system, making basic graphs using ggplot2,
+  calculating fold changes and performing normalisation. More
+  advanced analyses such as modelling, classification and 
+  clustering analyses may be added in future.
+Depends: R (>= 3.5.0)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports:
+  pheatmap,
+  tidyverse,
+  
+  
+  
