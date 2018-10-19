@@ -9,7 +9,7 @@ Description: R functions for cleaning RPPA data output by
   advanced analyses such as modelling, classification and 
   clustering analyses may be added in future.
 Depends: R (>= 3.5.0)
-License: What license is it under?
+License: MIT + LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
