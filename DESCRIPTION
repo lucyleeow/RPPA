@@ -13,9 +13,8 @@ License: MIT + LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
+  assertthat,
   openxlsx,
   pheatmap,
   tidyverse,
-  
-  
-  
+RoxygenNote: 6.1.0
