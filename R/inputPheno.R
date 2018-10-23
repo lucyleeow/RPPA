@@ -15,7 +15,11 @@
 #'     optional argument given.
 #'     
 
+#' @importFrom assert_that assertthat
+#' @importFrom 
 
+
+#' @export
 inputPheno <- function(
   path,            # path of the phenotype xlsx file
   sheet,           # sheet of xlsx file to read in
@@ -25,25 +29,25 @@ inputPheno <- function(
 ){
   
   # check inputs
-  assertthat::assert_that(is.character(path), 
+  assert_that(is.character(path), 
                           length(path) == 1,
                           msg = "Check that 'path' is single string")      
   
   if (! missing(col_remove)){
-    assertthat::assert_that(is.numeric(col_remove),
+    assert_that(is.numeric(col_remove),
                             msg = "Check 'col_remove' is of integer type")
   }
   
   if (! missing(condition_cols)){
-    assertthat::assert_that(is.numeric(condition_cols),
+    assert_that(is.numeric(condition_cols),
                             msg = "Check 'condition_cols' is of integer type")
   }
   
   
   # read in sheet
-  df <- read.xlsx(path, sheet = sheet)
+  df <- openxlsx::read.xlsx(path, sheet = sheet)
   
-  assertthat::assert_that(sum(colnames(df) %in% c("Lysate.ID")) == 1,
+  assert_that(sum(colnames(df) %in% c("Lysate.ID")) == 1,
                           msg = "Check that your sheet contains a 'Lysate.ID' column")
   
   
