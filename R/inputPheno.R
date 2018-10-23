@@ -1,8 +1,6 @@
 #' Create phenotype dataframe
 #' 
-#' Creates a dataframe containing phenotype information on the RPPA samples
-#' including a Condition column of sample and treatment details concatenated
-#' together.
+#' Creates a dataframe containing phenotype information on the RPPA samples. 
 #' 
 #' @param path Single string containing the path to the phenotyle xlsx file.
 #' @param sheet Single numeric indicating the sheet number or name of the 
@@ -11,12 +9,12 @@
 #' @param condition_cols Optional argument. Vector of column number(s) to
 #'     paste together to create the 'Conditon' column.
 #'     
-#' @return Dataframe of phenotype information with 'Conditions' column if 
-#'     optional argument given.
+#' @return Dataframe of phenotype information. A 'Condition' column of sample
+#'     and treatment details concatenated together will be included if the 
+#'     'condition_cols' argument is given. 
 #'     
 
-#' @importFrom assert_that assertthat
-#' @importFrom 
+#' @importFrom assertthat assert_that
 
 
 #' @export
