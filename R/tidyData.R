@@ -23,6 +23,7 @@
 #' 
 #' @importFrom assertthat assert_that
 #' 
+#' 
 #' @export
 tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno){
   
