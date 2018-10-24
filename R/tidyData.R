@@ -12,7 +12,7 @@
 #' If the exact same sample name appears multiple times, they represent 
 #' technical replicates and can be averaged using 'ave_reps'. 
 #' 
-#' @param df Dataframe in format of the raw data to tidy.
+#' @param df Dataframe in format of the raw data (to tidy).
 #' @param ABnames Dataframe containing the antibody number - full
 #'     antibody name key-pairs.
 #' @param Batch Batch code of the run. Can be single string or number. A column
