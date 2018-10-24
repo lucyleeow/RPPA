@@ -2,14 +2,15 @@
 #' 
 #' Takes wide/matrix RFI data exported from Zeptosens where each row is an
 #' sample and each column is an antibody and turns it into \href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
-#' A "Batch" column is added by default so that Batches can be identified if
+#' 
+#' @return Tidy dataframe with columns containing full antibody names and 
+#' phenotype information can also be merged into the base RFI dataframe. 
+#' 
+#' A "Batch" column is added by default so that batches can be identified if
 #' tidy dataframes from several runs are joined together. 
 #' 
-#' If the exact same sample name appears multiple times, they are technical 
-#' replicates and can be averaged using 'ave_reps'. 
-#' 
-#' Full antibody names and phenotype information can also be merged into the 
-#' base RFI dataframe.
+#' If the exact same sample name appears multiple times, they represent 
+#' technical replicates and can be averaged using 'ave_reps'. 
 #' 
 #' @param df Dataframe in format of the raw data to tidy.
 #' @param ABnames Dataframe containing the antibody number - full
