@@ -14,7 +14,7 @@
 #' phenotype information can also be merged into the base RFI dataframe. 
 #' 
 #' 
-#' @param df Dataframe in format of the raw data (to tidy).
+#' @param df Dataframe in the (matrix) format of the raw data.
 #' @param ABnames Dataframe containing the antibody number - full
 #'     antibody name key-pairs.
 #' @param Batch Batch code of the run. Can be single string or number. A column
