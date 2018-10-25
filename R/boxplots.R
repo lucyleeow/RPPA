@@ -1,14 +1,16 @@
 #' Generate boxplots of RFI values
 #' 
-#' Generate boxplots of raw RFI value for each antibody or each sample.
+#' Generate boxplots of raw RFI value for each antibody or each sample. 
 #' 
 #' @param tidydf Tidy dataframe of raw RFI values.
 #' @param RFIcol Name of the column, as string, containing RFI values.
 #' @param fill_by Optional argument. Name of the column, a string, to add to
 #'     the \code{fill} argument in ggplot's \code{aes}.
 #'     
+#'     
 #' @importFrom assertthat assert_that
 #' 
+#' @describeIn RFIperAB Generates a boxplot for each antibody.
 #' @export
 RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by){
   
@@ -46,7 +48,7 @@ RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by){
   
 }
 
-
+#' @describeIn RFIperAB Generates a boxplot for each sample.
 #' @export
 RFIperSample <- function(tidydf, RFIcol = "RFI", fill_by){
   
