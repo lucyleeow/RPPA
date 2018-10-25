@@ -1,9 +1,10 @@
 #' Global rank invariant normalisation
 #' 
-#' Performs global rank invariant normalisation, as described by href{Pelz et al.}{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}
+#' Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}
 #' 
-#' The code for this function was taken from the href{Pelz et al.}{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}. 
-#' Some minor changes have been made to allow it to be used for RPPA data.
+#' The code for this function was taken from\href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.} 
+#' Some minor changes have been made to allow it to be used for RPPA 
+#' data.
 #' 
 #' @param data Matrix of RFI values with column for each sample.
 #' @param width Width (inches) of diagnostic plot.
