@@ -15,7 +15,7 @@
 #' @param tidydf Tidy dataframe of RFI values to convert to matrix.
 #' @param logdata Single logical indicating whether the raw RFI values should
 #'     be logged.
-#' @param tech_reps Single logical indicating whether ther are technical
+#' @param tech_reps Single logical indicating whether there are technical
 #'     replicates.
 #'     
 #' @importFrom assertthat assert_that
