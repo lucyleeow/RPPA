@@ -1,20 +1,21 @@
-#################################################
-# Global rank invariant normalisation
-#
-# This function performs global rank invariant normalisation, as described by
-# Pelz et al. 
-# The paper can be found here:
-# https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520
-# This code was taken from the above paper. Some minor changes have been made
-# to allow it to be used for RPPA data. Changes are marked with LL (Lucy Liu)
-#
-# Author: Lucy Liu
-#################################################
+#' Global rank invariant normalisation
+#' 
+#' Performs global rank invariant normalisation, as described by href{Pelz et al.}{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}
+#' 
+#' The code for this function was taken from the href{Pelz et al.}{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}. 
+#' Some minor changes have been made to allow it to be used for RPPA data.
+#' 
+#' @param data Matrix of RFI values with column for each sample.
+#' @param width Width (inches) of diagnostic plot.
+#' @param height Height (inches) of diagnostic plot.
+#' @param pointsize Point size for text of diagnostic plot.
+#' @param filetype Diagnostic plot format "png", "wmf", or "postscript"
+#' @param ReportName Name for Diagnostic plots.
+#' @param count Size of Global Rank-invariant Set to use.
+#' @param f Smoother parameter for lowess.
 
-#############################################
-# Helper function to setup plotting to file.
-#############################################
-GraphSetup <- function(width=6, height=6, pointsize=12, 
+
+.GraphSetup <- function(width=6, height=6, pointsize=12, 
                        ReportName="test", filetype="none")
 {
   PrintToFile <- FALSE
@@ -53,6 +54,7 @@ GraphSetup <- function(width=6, height=6, pointsize=12,
 # Main GRSN implementation script.
 ##############################################
 
+#' @export
 GRSN <- function(data,           # exprSet from affy package or matrix with column for each sample.
                  width=15,       # Width (inches) of diagnostic plot.
                  height=5,       # Height (inches) of diagnostic plot.
@@ -62,6 +64,9 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
                  count=5000,     # Size of Global Rank-invariant Set to use.
                  f=0.25)         # Smoother parameter for lowess.
 {
+  
+  # Changes are marked with LL (Lucy Liu)
+  
   # Check the class of the input data.
   if (class(data) == "exprSet")
   {
@@ -181,7 +186,7 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
   {
     if (!is.na(ReportName))
     {
-      PrintToFile <- GraphSetup(width=width, height=height, 
+      PrintToFile <- .GraphSetup(width=width, height=height, 
                                 pointsize=pointsize, 
                                 ReportName=paste(ReportName, b, sep=""),
                                 filetype=filetype)
