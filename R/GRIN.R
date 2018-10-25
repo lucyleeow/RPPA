@@ -1,8 +1,8 @@
-#' Global rank invariant normalisation
+#' Global rank invariant normalisation (GRIN)
 #' 
 #' Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}
 #' 
-#' The code for this function was taken from\href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.} 
+#' The code for this function was taken from \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.} 
 #' Some minor changes have been made to allow it to be used for RPPA 
 #' data.
 #' 
@@ -16,44 +16,9 @@
 #' @param f Smoother parameter for lowess.
 
 
-.GraphSetup <- function(width=6, height=6, pointsize=12, 
-                       ReportName="test", filetype="none")
-{
-  PrintToFile <- FALSE
-  if (filetype == "png")
-  {
-    PrintToFile <- TRUE
-    file <- paste(ReportName, ".png", sep="")
-    # Write plots as image files.
-    png(filename=file, width=96*width, height=96*height, 
-        pointsize=pointsize, bg="white")
-  } 
-  
-  if (filetype == "wmf")
-  {
-    PrintToFile <- TRUE
-    file <- paste(ReportName, ".wmf", sep="")
-    # Write plots as windows meta files.
-    win.metafile(filename=file, width=width, height=height, 
-                 pointsize=pointsize)
-  } 
-  
-  if (filetype == "postscript")
-  {
-    PrintToFile <- TRUE
-    file <- paste(ReportName, ".eps", sep="")
-    # Write plots as postscript files.
-    postscript(file=file, width=width, height=height, 
-               pointsize=pointsize, onefile=FALSE, 
-               horizontal=FALSE, paper="special", family="Times")
-  } 
-  
-  return(PrintToFile)
-}
-
-##############################################
+# #############################################
 # Main GRSN implementation script.
-##############################################
+# #############################################
 
 #' @export
 GRSN <- function(data,           # exprSet from affy package or matrix with column for each sample.
@@ -321,5 +286,41 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
   }
   
   return(data)
+}
+
+#' @keywords internal
+GraphSetup <- function(width=6, height=6, pointsize=12, 
+                       ReportName="test", filetype="none")
+{
+  PrintToFile <- FALSE
+  if (filetype == "png")
+  {
+    PrintToFile <- TRUE
+    file <- paste(ReportName, ".png", sep="")
+    # Write plots as image files.
+    png(filename=file, width=96*width, height=96*height, 
+        pointsize=pointsize, bg="white")
+  } 
+  
+  if (filetype == "wmf")
+  {
+    PrintToFile <- TRUE
+    file <- paste(ReportName, ".wmf", sep="")
+    # Write plots as windows meta files.
+    win.metafile(filename=file, width=width, height=height, 
+                 pointsize=pointsize)
+  } 
+  
+  if (filetype == "postscript")
+  {
+    PrintToFile <- TRUE
+    file <- paste(ReportName, ".eps", sep="")
+    # Write plots as postscript files.
+    postscript(file=file, width=width, height=height, 
+               pointsize=pointsize, onefile=FALSE, 
+               horizontal=FALSE, paper="special", family="Times")
+  } 
+  
+  return(PrintToFile)
 }
 
