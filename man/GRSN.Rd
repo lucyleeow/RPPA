@@ -25,7 +25,7 @@ GRSN(data, width = 15, height = 5, pointsize = 16,
 \item{f}{Smoother parameter for lowess.}
 }
 \description{
-Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}
+Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}.
 }
 \details{
 The code for this function was taken from \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.} 
