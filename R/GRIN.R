@@ -1,6 +1,6 @@
 #' Global rank invariant normalisation (GRIN)
 #' 
-#' Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}
+#' Performs global rank invariant normalisation, as described by \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.}.
 #' 
 #' The code for this function was taken from \href{https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-520}{Pelz et al.} 
 #' Some minor changes have been made to allow it to be used for RPPA 
@@ -289,7 +289,7 @@ GRSN <- function(data,           # exprSet from affy package or matrix with colu
 }
 
 #' @keywords internal
-GraphSetup <- function(width=6, height=6, pointsize=12, 
+.GraphSetup <- function(width=6, height=6, pointsize=12, 
                        ReportName="test", filetype="none")
 {
   PrintToFile <- FALSE
