@@ -12,7 +12,7 @@
 #' @return A numeric matrix where each row is an antibody and each column is
 #'     a sample.
 #' 
-#' @param tidydf Tidy dataframe to convert to matrix 
+#' @param tidydf Tidy dataframe of RFI values to convert to matrix 
 #' @param logdata Single logical indicating whether the raw RFI values should
 #'     be logged.
 #' @param tech_reps Single logical indicating whether ther are technical
