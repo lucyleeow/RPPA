@@ -3,7 +3,7 @@
 #' Takes wide/matrix RFI data exported from Zeptosens where each row is an
 #' sample and each column is an antibody and turns it into \href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
 #' 
-#' #' A "Batch" column is added by default so that batches can be identified if
+#' A "Batch" column is added by default so that batches can be identified if
 #' tidy dataframes from several runs are joined together. 
 #' 
 #' If the exact same sample name appears multiple times, they represent 
