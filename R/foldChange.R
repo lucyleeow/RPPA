@@ -194,10 +194,9 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
   
   # main plot
   gg <- fc_df %>%
-    mutate(sampComp = paste(Sample1, Sample2)) %>%
-    filter(sampComp %in% paste(comparisons[,1], comparisons[,2])) %>%
-    mutate(SampCond = paste(Sample2, Condition)) %>%
-    ggplot(aes(y = FoldChange, x = Antibody.Name, fill = SampCond)) +
+    mutate(sampComp = paste(Sample1, "vs", Sample2)) %>%
+    filter(sampComp %in% paste(comparisons[,1], "vs", comparisons[,2])) %>%
+    ggplot(aes(y = FoldChange, x = Antibody.Name, fill = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(title = "Fold change per antibody", x = "Antibody", 
          y = ylab) +
