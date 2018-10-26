@@ -31,6 +31,7 @@
 #' 
 #' 
 #' @importFrom assertthat assert_that
+#' @importFrom rlang !!
 #' 
 #' @export
 spearmanPlot <- function(tidydf, RFI1, RFI2){
@@ -54,13 +55,13 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   rankdf <- tidydf %>%
     group_by(AB) %>%  # each group contains RFI values for 1 AB but across 
                       # ALL samples. Thus the rank is across samples.
-    mutate(Rank1 = rank(rlang::UQ(as.name(RFI1))))
+    mutate(Rank1 = rank(!!(as.name(RFI1))))
   
   if (! missing(RFI2)){
     
     rankdf <- rankdf %>%
       group_by(AB) %>%
-      mutate(Rank2 = rank(rlang::UQ(as.name(RFI2))))
+      mutate(Rank2 = rank(!!(as.name(RFI2))))
     
   }
   
