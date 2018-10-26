@@ -44,10 +44,10 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   
   if (! missing(RFI1)){
     assert_that(sum(c("AB", RFI1, RFI2) %in% colnames(tidydf)) == 3,
-                msg = "Check tidydf contains the columns 'AB' and your input 'RFI1' & 'RFI2'")
+                msg = "Check 'tidydf' contains the columns 'AB' and your input 'RFI1' & 'RFI2'")
   } else {
     assert_that(sum(c("AB", RFI1) %in% colnames(tidydf)) == 2,
-                msg = "Check tidydf contains the columns 'AB' and your input 'RFI1'")
+                msg = "Check 'tidydf' contains the columns 'AB' and your input 'RFI1'")
   }
   
   # generate ranks
