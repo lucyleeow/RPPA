@@ -5,7 +5,7 @@
 \alias{plotFC}
 \title{Calculate fold change}
 \usage{
-calcFC(tidydf, comparisons, log = FALSE, ABnames)
+calcFC(tidydf, comparisons, log = FALSE, RFI_col = "RFI", ABnames)
 
 plotFC(fc_df, comparisons, logged = FALSE, normalised = FALSE, flip)
 }
@@ -20,6 +20,8 @@ column 2 divided by column 1, for each comparison/row.}
 
 \item{log}{Single logical indicating whether the fold change should be 
 logged (base 2).}
+
+\item{RFI_col}{Name of column containing RFI values, as string.}
 
 \item{ABnames}{Optional argument. Merges full antibody names to the output
 dataframe.}
