@@ -202,7 +202,7 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
     labs(title = "Fold change per antibody", x = "Antibody", 
          y = ylab) +
     scale_fill_manual(values = pal2[1:num_comparisons],
-                      name = "Sample & Condition") +
+                      name = "Comparison") +
     theme(plot.title = element_text(hjust = 0.5))
   
   
