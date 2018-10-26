@@ -49,7 +49,7 @@ tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno){
                           msg = "Check 'ave_reps' is a single logical")
   
   if (! missing(pheno)){
-    assertthat::assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
+    assert_that(sum(colnames(pheno) %in% c("Lysate.ID")) == 1,
                             msg = "Check pheno dataframe has one 'Lysate.ID' column")
   }
   
