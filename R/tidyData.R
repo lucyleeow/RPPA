@@ -30,7 +30,7 @@
 #' 
 #' 
 #' @export
-tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno){
+tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno) {
   
   # check argument inputs
   assert_that(colnames(df)[1] == "X1", dim(df)[2] > 1,
