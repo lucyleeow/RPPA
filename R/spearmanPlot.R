@@ -56,7 +56,7 @@
     # note2: each vector of ranks are in the same order in terms of 
     # samples because the input data was tidy
     
-    c[i] <- cor(a,b, method = 'spearman')
+    c[i] <- cor(ab1_vec, ab2_vec, method = 'spearman')
   }
   
   return(c)
@@ -102,7 +102,7 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   
   if (! missing(RFI2)) {
     
-    corr2 <- spearmanRanks(rankdf, "Rank2")
+    corr2 <- .spearmanRanks(rankdf, "Rank2")
     
   }
   
