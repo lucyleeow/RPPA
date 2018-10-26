@@ -55,16 +55,16 @@ tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno){
   numcols <- ncol(df)
   
   gather_df <- df %>%
-    gather(2:numcols, key = "AB", value = "RFI") %>%
-    mutate(Batch = Batch)
+    tidyr::gather(2:numcols, key = "AB", value = "RFI") %>%
+    dplyr::mutate(Batch = Batch)
   
   # average technical replicates
   if (ave_reps){
     
     gather_df <- gather_df %>%
-      group_by(AB,X1) %>%
-      summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
-      mutate(Batch = Batch)
+      dplyr::group_by(AB,X1) %>%
+      dplyr::summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
+      dplyr::mutate(Batch = Batch)
     
   } 
   
