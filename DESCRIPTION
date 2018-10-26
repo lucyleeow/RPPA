@@ -18,5 +18,6 @@ Imports:
   ggplot2,
   openxlsx,
   pheatmap,
+  rlang,
   tidyr
 RoxygenNote: 6.1.0
