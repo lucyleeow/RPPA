@@ -24,6 +24,9 @@
 #' @param pheno Dataframe containing information on the sample phenotypes.
 #' 
 #' @importFrom assertthat assert_that
+#' @importFrom dplyr mutate
+#' @importFrom dplyr summarise
+#' @importFrom dplyr group_by
 #' 
 #' 
 #' @export
@@ -56,15 +59,15 @@ tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno){
   
   gather_df <- df %>%
     tidyr::gather(2:numcols, key = "AB", value = "RFI") %>%
-    dplyr::mutate(Batch = Batch)
+    mutate(Batch = Batch)
   
   # average technical replicates
   if (ave_reps){
     
     gather_df <- gather_df %>%
-      dplyr::group_by(AB,X1) %>%
-      dplyr::summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
-      dplyr::mutate(Batch = Batch)
+      group_by(AB,X1) %>%
+      summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
+      mutate(Batch = Batch)
     
   } 
   
