@@ -14,7 +14,9 @@ Encoding: UTF-8
 LazyData: true
 Imports:
   assertthat,
+  dplyr,
+  ggplot2,
   openxlsx,
   pheatmap,
-  tidyverse,
+  tidyr
 RoxygenNote: 6.1.0
