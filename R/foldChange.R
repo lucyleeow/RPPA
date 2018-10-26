@@ -71,8 +71,8 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
   
   # convert to wide format
   wide_df <- tidydf %>%
-    select(X1, RFI, AB) %>%
-    tidyr::spread(value = RFI, key = AB)
+    select(X1, rlang::UQ(as.name(RFI_col)), AB) %>%
+    tidyr::spread(value = rlang::UQ(as.name(RFI_col)), key = AB)
   
   # convert to matrix
   numeric_mat <- as.matrix(wide_df[,-1])
