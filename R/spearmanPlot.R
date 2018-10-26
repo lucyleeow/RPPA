@@ -1,6 +1,6 @@
 #' Pairwise correlation coefficient plot
 #' 
-#' Calculate pairwise Spearman correlation between all possible combinations
+#' Calculate the pairwise Spearman correlation between all possible combinations
 #' of proteins and plot these (ordered) as a scatter plot.
 #' 
 #' This function performs the following steps:
@@ -9,11 +9,18 @@
 #'     \item For each protein, get the rank of it's expression level across
 #'         all samples.
 #'     \item Get matrix of all possible pairs of proteins.
-#'     \item For each pair of protein, calculate their Spearman correlation
+#'     \item For each pair of proteins, calculate the Spearman correlation
 #'         of their ranks.
 #'     \item Plot all the (ordered) Spearman correlations for all the protein
-#'         pairs.
+#'         pairs as a scatter plot.
 #' }
+#' 
+#' The distribution of the correlations can be indicative of the performance of
+#' a normalisation technique. Differences in sample loading can result in 
+#' artifically high correlations between protein pairs. You expect well 
+#' normalised data to have similar positive and negative correlation 
+#' coefficients. More information can be found in 
+#' \href{http://journals.sagepub.com/doi/pdf/10.4137/CIN.S13329}{Liu et al.}.
 #' 
 #' 
 #' @param tidydf Tidy dataframe with RFI values, antibody names, sample names
@@ -25,46 +32,6 @@
 #' 
 #' @importFrom assertthat assert_that
 #' 
-
-# Helper function to get vector of correlations between each possible pair of
-# antibodies.
-
-#' @keywords internal
-.spearmanRanks <- function(rankdf, rank_col) {
-  
-  # get all possible combinations of AB's
-  ABcomb <- combn(unique(rankdf$AB),2)
-  # note combn() performs "unique(rankdf$AB) Choose 2" and gives all the 
-  # possible combinations in matrix format. Our matrix will have 2 rows as we 
-  # and "(Number of unique AB) Choose 2" columns.
-  
-  # total number of possible combinations
-  num_combinations <- ncol(ABcomb)
-  
-  # create empty vector, the length of the number of combinations
-  c <- vector(mode = "double", length = num_combinations)
-  
-  ## fill vector with correlations
-  for (i in 1:num_combinations){
-    
-    ab1_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[1,i]]
-    
-    ab2_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[2,i]]
-    
-    # note1: rankdf[[rank_col]] gives you a vector
-    
-    # note2: each vector of ranks are in the same order in terms of 
-    # samples because the input data was tidy
-    
-    c[i] <- cor(ab1_vec, ab2_vec, method = 'spearman')
-  }
-  
-  return(c)
-  
-}
-
-
-
 #' @export
 spearmanPlot <- function(tidydf, RFI1, RFI2){
   
@@ -128,6 +95,43 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   abline(0.5,0)
   abline(-0.5,0)
   
+  
+}
+
+# Helper function to get vector of correlations between each possible pair of
+# antibodies.
+
+#' @keywords internal
+.spearmanRanks <- function(rankdf, rank_col) {
+  
+  # get all possible combinations of AB's
+  ABcomb <- combn(unique(rankdf$AB),2)
+  # note combn() performs "unique(rankdf$AB) Choose 2" and gives all the 
+  # possible combinations in matrix format. Our matrix will have 2 rows as we 
+  # and "(Number of unique AB) Choose 2" columns.
+  
+  # total number of possible combinations
+  num_combinations <- ncol(ABcomb)
+  
+  # create empty vector, the length of the number of combinations
+  c <- vector(mode = "double", length = num_combinations)
+  
+  ## fill vector with correlations
+  for (i in 1:num_combinations){
+    
+    ab1_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[1,i]]
+    
+    ab2_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[2,i]]
+    
+    # note1: rankdf[[rank_col]] gives you a vector
+    
+    # note2: each vector of ranks are in the same order in terms of 
+    # samples because the input data was tidy
+    
+    c[i] <- cor(ab1_vec, ab2_vec, method = 'spearman')
+  }
+  
+  return(c)
   
 }
 
