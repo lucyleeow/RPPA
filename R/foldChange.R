@@ -34,7 +34,7 @@
 #'     their phenotype description.
 #' @export 
 calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
-                   ABnames){
+                   ABnames) {
   
   # check inputs
   assert_that(is.character(RFI_col), length(RFI_col) == 1,
@@ -148,7 +148,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
 #'     comparisons.
 #' @export
 plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
-                   flip){
+                   flip) {
   
   # check inputs
   assert_that(sum(c("Condition","Sample1","Sample2","AB", 

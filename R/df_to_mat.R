@@ -25,7 +25,7 @@
 #' 
 #' 
 #' @export
-df_to_mat <- function(tidydf, logdata, tech_reps){
+df_to_mat <- function(tidydf, logdata, tech_reps) {
   
   # check inputs
   assert_that(is.logical(logdata),

@@ -1,11 +1,23 @@
-#######################################
-# Pairwise correlation coefficient plot
-# Author: Lucy Liu
-#######################################
+#' Pairwise correlation coefficient plot
+#' 
+#' Calculate pairwise Spearman correlation between all possible combinations
+#' of proteins and plot these (ordered) as a scatter plot.
+#' 
+#' @param 
+#' 
+
+
+
 
 ################################################
 # Helper function - gives vector of correlations
 ################################################
+rankGR <- tidyGR %>%
+  group_by(AB) %>%
+  mutate(Rank = rank(RFI)) %>%
+  select(-RFI)
+
+
 spearmanRanks <- function(
   rankdf,    # Dataframe containing column of AB ranks and names of ABs
   c1         # Name of the column containg the ranks
@@ -16,10 +28,16 @@ spearmanRanks <- function(
   # (which contains the names of ABs) and another column of ranks of 
   # each AB (across all samples) and returns a vector of spearman correlations 
   # between the ranks of all possible combinations of pairs of ABs.
+  rankdf <- tidydf %>%
+    group_by(AB) %>%
+    mutate(Rank = rank(RFI)) %>%
+    select(-RFI)
   
 
     ABcomb <- combn(unique(rankdf$AB),2)
-  # Create matrix of all possible combinations. Resulting matrix will have 2 rows   as we are choosing 2 from vector of unique ABs.
+  # Performs "(Number of unique AB) Choose 2" and gives all the possible
+  # combinations in matrix format. Matrix will have 2 rows as we are 
+  # and "(Number of unique AB) Choose 2" columns.
   
   c <- vector(mode = "double", length = dim(ABcomb)[2])
   # Create empty vector length of the number of combinations

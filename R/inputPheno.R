@@ -18,13 +18,7 @@
 
 
 #' @export
-inputPheno <- function(
-  path,            # path of the phenotype xlsx file
-  sheet,           # sheet of xlsx file to read in
-  col_remove,      # optional argument. column number(s) to remove
-  condition_cols   # optional argument. column number(s) to paste 
-  # together to create 'condition' column
-){
+inputPheno <- function(path, sheet, col_remove, condition_cols) {
   
   # check inputs
   assert_that(is.character(path), 

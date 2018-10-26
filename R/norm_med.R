@@ -22,7 +22,7 @@
 #' @importFrom dplyr select
 #'
 #' @export
-norm_med <- function(tidydf, col_name = "RFI"){
+norm_med <- function(tidydf, col_name = "RFI") {
   
   # check inputs
   assert_that(sum(c("X1", "AB", "RFI") %in% colnames(tidydf)) == 3,

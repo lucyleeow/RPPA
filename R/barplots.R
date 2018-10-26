@@ -18,7 +18,7 @@
 #'     
 #'  
 #' @export
-plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE){
+plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
   
   # check inputs
   assert_that(RFIcol %in% colnames(tidydf) == 1,
@@ -62,7 +62,7 @@ plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE){
 #'     sample, one barplot per antibody. Save in a file called 'plotPerAB.pdf'
 #'     if pdfoutput = TRUE.
 #' @export
-plotperAB <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE){
+plotperAB <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
   
   # check inputs
   assert_that(RFIcol %in% colnames(tidydf) == 1,

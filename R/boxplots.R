@@ -13,7 +13,7 @@
 #' 
 #' @describeIn RFIperAB Generates a boxplot for each antibody.
 #' @export
-RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by){
+RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by) {
   
   assert_that(RFIcol %in% colnames(tidydf) == 1,
               msg = "Check 'RFIcol' is correct")
@@ -51,7 +51,7 @@ RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by){
 
 #' @describeIn RFIperAB Generates a boxplot for each sample.
 #' @export
-RFIperSample <- function(tidydf, RFIcol = "RFI", fill_by){
+RFIperSample <- function(tidydf, RFIcol = "RFI", fill_by) {
   
   # check inputs
   assert_that(RFIcol %in% colnames(tidydf) == 1,
