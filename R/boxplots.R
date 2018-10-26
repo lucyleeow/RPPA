@@ -9,6 +9,7 @@
 #'     
 #'     
 #' @importFrom assertthat assert_that
+#' @import ggplot2
 #' 
 #' @describeIn RFIperAB Generates a boxplot for each antibody.
 #' @export

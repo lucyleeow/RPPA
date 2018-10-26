@@ -19,6 +19,9 @@
 #'     replicates.
 #'     
 #' @importFrom assertthat assert_that
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr group_by
 #' 
 #' 
 #' @export
@@ -40,9 +43,9 @@ df_to_mat <- function(tidydf, logdata, tech_reps){
     tidydf <- tidydf %>%
       group_by(X1, AB) %>%
       mutate(X2 = paste(X1, row_number(), sep = "_")) %>%
-      ungroup() %>%
+      dplyr::ungroup() %>%
       select(-X1) %>%
-      rename(X1 = X2)
+      dplyr::rename(X1 = X2)
     
   }
   
@@ -51,7 +54,7 @@ df_to_mat <- function(tidydf, logdata, tech_reps){
   mat <- as.matrix(
     tidydf %>%
       select(X1, AB, RFI) %>%
-      spread(key = AB, value = RFI)
+      tidyr::spread(key = AB, value = RFI)
   )
   
   rownames(mat) <- mat[,1]
