@@ -21,6 +21,13 @@
 #' @param flip Single logical indicating whether the plot should be flipped
 #' 
 #' 
+#' @importFrom assertthat assert_that
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @import ggplot2
+#' 
+#' 
 #' @describeIn calcFC Generates a dataframe of fold changes for each 
 #'     comparison, with columns of corresponding names of samples compared and 
 #'     their phenotype description.
@@ -60,7 +67,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, ABnames){
   # convert to wide format
   wide_df <- tidydf %>%
     select(X1, RFI, AB) %>%
-    spread(value = RFI, key = AB)
+    tidyr::spread(value = RFI, key = AB)
   
   # convert to matrix
   numeric_mat <- as.matrix(wide_df[,-1])
@@ -120,7 +127,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, ABnames){
       
   # change to long form
   fc_df <- fc_df %>%
-    gather(1:num_ABs, key = "AB", value = "FoldChange") 
+    tidyr::gather(1:num_ABs, key = "AB", value = "FoldChange") 
   
   if (! missing(ABnames)){
     fc_df <- merge(fc_df, ABnames, by.x = "AB", by.y = "Ab.No.",
@@ -135,34 +142,27 @@ calcFC <- function(tidydf, comparisons, log = FALSE, ABnames){
 #' @describeIn calcFC Generates a barplot of fold changes for the desired
 #'     comparisons.
 #' @export
-plotFC <- function(
-  fc_df,               # fold change df
-  comparisons,         # the comparisons from the comparisons df to show on 
-                       # plot
-  logged = FALSE,      # logical indicating whether the data have been logged
-  normalised = FALSE,  # logical indicating whether the data have been 
-                       # normalised
-  flip                 # logical indicating whether the plot should be flipped
-){
+plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
+                   flip){
   
   # check inputs
-  assertthat::assert_that(sum(c("Condition","Sample1","Sample2","AB", 
+  assert_that(sum(c("Condition","Sample1","Sample2","AB", 
                                 "FoldChange") %in% colnames(fc_df)) == 5,
                           msg = "'fc_df' should have on of each of the 
                                 following columns: 'Condition',
                                 'Sample1','Sample2','AB' & 'FoldChange'")
   
-  assertthat::assert_that(is.character(comparisons[,1]),
+  assert_that(is.character(comparisons[,1]),
                           is.character(comparisons[,2]),
                           msg = "Check that 'comparisons' is of string type")
   
-  assertthat::assert_that(is.logical(logged), length(logged) == 1,
+  assert_that(is.logical(logged), length(logged) == 1,
                           msg = "Check 'logged' is a single logical")
   
-  assertthat::assert_that(is.logical(normalised), length(normalised) == 1,
+  assert_that(is.logical(normalised), length(normalised) == 1,
                           msg = "Check 'normalised' is a single logical")
   
-  assertthat::assert_that(is.logical(flip), length(flip) == 1,
+  assert_that(is.logical(flip), length(flip) == 1,
                           msg = "Check 'flip' is a single logical")
   
   # colour blind friendly palette
@@ -216,12 +216,3 @@ plotFC <- function(
   return(gg)
   
 }
-  
-  
-  
-  
-  
-  
-  
-  
-
