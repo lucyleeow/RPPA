@@ -191,18 +191,17 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
   }
   
   # number of comparisions
-  num_comparisons <- nrow(comparisons)
+  num_comparisons <- nrow(comparisons) 
   
   # main plot
   gg <- fc_df %>%
     mutate(sampComp = paste(Sample2, "vs", Sample1)) %>%
     filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
-    ggplot(aes(y = FoldChange, x = Antibody.Name, fill = sampComp)) +
+    ggplot(aes(y = FoldChange, x = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
-    labs(title = "Fold change per antibody", x = "Antibody", 
+    facet_wrap(.~Antibody.Name) + 
+    labs(title = "Fold change for each comparison", x = "Comparison", 
          y = ylab) +
-    scale_fill_manual(values = pal2[1:num_comparisons],
-                      name = "Comparison") +
     theme(plot.title = element_text(hjust = 0.5))
   
   
