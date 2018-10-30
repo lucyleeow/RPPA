@@ -23,6 +23,7 @@
 #' 
 #' 
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' @importFrom dplyr mutate
 #' @importFrom dplyr filter

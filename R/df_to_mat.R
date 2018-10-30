@@ -19,6 +19,7 @@
 #'     replicates.
 #'     
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
 #' @importFrom dplyr group_by

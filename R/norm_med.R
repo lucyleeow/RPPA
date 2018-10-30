@@ -17,6 +17,7 @@
 #' @param col_name Column name of the median normalised values as a string.
 #'     
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom dplyr group_by
 #' @importFrom dplyr select

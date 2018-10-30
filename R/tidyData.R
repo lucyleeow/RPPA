@@ -24,6 +24,7 @@
 #' @param pheno Dataframe containing information on the sample phenotypes.
 #' 
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @importFrom dplyr mutate
 #' @importFrom dplyr summarise
 #' @importFrom dplyr group_by

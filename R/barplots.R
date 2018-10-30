@@ -13,6 +13,7 @@
 #'     'plotPerSample.pdf' if pdfoutput=TRUE.
 #'     
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @import ggplot2
 #' @importFrom dplyr filter 
 #'     

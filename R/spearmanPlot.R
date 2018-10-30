@@ -31,6 +31,7 @@
 #' 
 #' 
 #' @importFrom assertthat assert_that
+#' @importFrom magrittr %>%
 #' @importFrom rlang !!
 #' 
 #' @export
@@ -120,16 +121,16 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   ## fill vector with correlations
   for (i in 1:num_combinations){
     
-    ab1_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[1,i]]
+    AB1_ranks <- rankdf[[rank_col]][rankdf$AB == ABcomb[1,i]]
     
-    ab2_vec <- rankdf[[rank_col]][rankdf$AB == ABcomb[2,i]]
+    AB2_ranks <- rankdf[[rank_col]][rankdf$AB == ABcomb[2,i]]
     
     # note1: rankdf[[rank_col]] gives you a vector
     
     # note2: each vector of ranks are in the same order in terms of 
     # samples because the input data was tidy
     
-    c[i] <- cor(ab1_vec, ab2_vec, method = 'spearman')
+    c[i] <- cor(AB1_ranks, AB2_ranks, method = 'spearman')
   }
   
   return(c)
