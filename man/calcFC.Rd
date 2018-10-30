@@ -7,7 +7,7 @@
 \usage{
 calcFC(tidydf, comparisons, log = FALSE, RFI_col = "RFI", ABnames)
 
-plotFC(fc_df, comparisons, logged = FALSE, normalised = FALSE, flip)
+plotFC(fc_df, comparisons, logged = FALSE, normalised = FALSE)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI values and their corresponding sample 
@@ -32,8 +32,6 @@ dataframe.}
 
 \item{normalised}{Single logical indicating whether the data have been 
 normalised.}
-
-\item{flip}{Single logical indicating whether the plot should be flipped}
 }
 \description{
 Calculates the fold changes between samples for a given set of comparisons.
