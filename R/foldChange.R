@@ -19,7 +19,6 @@
 #' @param logged Single logical indicating whether the data have been logged
 #' @param normalised Single logical indicating whether the data have been 
 #'     normalised.
-#' @param flip Single logical indicating whether the plot should be flipped
 #' 
 #' 
 #' @importFrom assertthat assert_that
@@ -149,8 +148,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
 #' @describeIn calcFC Generates a barplot of fold changes for the desired
 #'     comparisons.
 #' @export
-plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
-                   flip) {
+plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   
   # check inputs
   assert_that(sum(c("Condition","Sample1","Sample2","AB", 
@@ -169,8 +167,6 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
   assert_that(is.logical(normalised), length(normalised) == 1,
                           msg = "Check 'normalised' is a single logical")
   
-  assert_that(is.logical(flip), length(flip) == 1,
-                          msg = "Check 'flip' is a single logical")
   
   # colour blind friendly palette
   pal2 <- c("#000000", "#009E73", "#e79f00", "#9ad0f3", "#0072B2", 
@@ -200,24 +196,12 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE,
     filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
     ggplot(aes(y = FoldChange, x = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
+    coord_flip() +
     facet_wrap(.~Antibody.Name) + 
     labs(title = "Fold change for each comparison", x = "Comparison", 
          y = ylab) +
     theme(plot.title = element_text(hjust = 0.5))
   
-  
-  if (flip){
-    
-    gg <- gg +
-      coord_flip()
-      
-      
-  } else {
-    
-    gg <- gg + 
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  }
-
   return(gg)
   
 }
