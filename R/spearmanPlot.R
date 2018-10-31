@@ -22,6 +22,8 @@
 #' coefficients. More information can be found in 
 #' \href{http://journals.sagepub.com/doi/pdf/10.4137/CIN.S13329}{Liu et al.}.
 #' 
+#' @return Creates a plot in the current graphics device.
+#' 
 #' 
 #' @param tidydf Tidy dataframe with RFI values, antibody names, sample names
 #'     and any other optional columns.

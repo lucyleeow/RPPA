@@ -43,7 +43,7 @@ Calculates the fold changes between samples for a given set of comparisons.
 comparison, with columns of corresponding names of samples compared and 
 their phenotype description.
 
-\item \code{plotFC}: Generates a barplot of fold changes for the desired
-comparisons.
+\item \code{plotFC}: Creates a faceted bar plots of fold changes of the 
+desired comparisons for each antibody on the current graphics device.
 }}
 

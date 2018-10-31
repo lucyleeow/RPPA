@@ -145,8 +145,8 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
 }
 
 
-#' @describeIn calcFC Generates a barplot of fold changes for the desired
-#'     comparisons.
+#' @describeIn calcFC Creates a faceted bar plots of fold changes of the 
+#'     desired comparisons for each antibody on the current graphics device.
 #' @export
 plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   

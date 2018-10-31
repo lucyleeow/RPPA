@@ -18,12 +18,13 @@ RFIperSample(tidydf, RFIcol = "RFI", fill_by)
 the \code{fill} argument in ggplot's \code{aes}.}
 }
 \description{
-Generate boxplots of raw RFI value for each antibody or each sample.
+Creates boxplots of raw RFI value for each antibody or each sample in the 
+current graphics device.
 }
 \section{Functions}{
 \itemize{
-\item \code{RFIperAB}: Generates a boxplot for each antibody.
+\item \code{RFIperAB}: Creates a boxplot for each antibody.
 
-\item \code{RFIperSample}: Generates a boxplot for each sample.
+\item \code{RFIperSample}: Creates a boxplot for each sample.
 }}
 

@@ -15,6 +15,9 @@ and any other optional columns.}
 \item{RFI2}{Optional argument. Name of the second column of RFI values to
 rank, as string.}
 }
+\value{
+Creates a plot in the current graphics device.
+}
 \description{
 Calculate the pairwise Spearman correlation between all possible combinations
 of proteins and plot these (ordered) as a scatter plot.

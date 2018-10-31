@@ -18,7 +18,9 @@ plotperAB(tidydf, RFIcol = "RFI", pdfoutput = TRUE)
 output to separate pdf file or printed in console.}
 }
 \description{
-Generate a separate barplot of the RFI value for EACH sample or antibody.
+Creates a separate barplot of the RFI value for EACH sample or antibody and 
+writes to either pdf called 'plotPerSample.pdf' or the current graphics
+device.
 }
 \section{Functions}{
 \itemize{
@@ -26,8 +28,8 @@ Generate a separate barplot of the RFI value for EACH sample or antibody.
 antibody, one barplot per sample. Save in a file called 
 'plotPerSample.pdf' if pdfoutput=TRUE.
 
-\item \code{plotperAB}: Generate a barplot of the RFI value for each 
-sample, one barplot per antibody. Save in a file called 'plotPerAB.pdf'
-if pdfoutput = TRUE.
+\item \code{plotperAB}: Creates a barplot of the RFI value for each 
+sample, one barplot per antibody. Writes to either a pdf called 
+'plotPerAB.pdf' or the current graphics device.
 }}
 
