@@ -1,7 +1,8 @@
 #' Generate boxplots of RFI values
 #' 
-#' Creates boxplots of raw RFI value for each antibody or each sample in the 
-#' current graphics device.
+#' Creates boxplots of raw RFI value for each antibody or each sample.
+#' 
+#' @return Creates plot in current graphics device.
 #' 
 #' @param tidydf Tidy dataframe of raw RFI values.
 #' @param RFIcol Name of the column, as string, containing RFI values.

@@ -1,18 +1,17 @@
 #' Barplots per sample/antibody
 #' 
-#' Creates a separate barplot of the RFI value for EACH sample or antibody and 
-#' writes to either pdf called 'plotPerSample.pdf' or the current graphics
-#' device.
+#' Creates separate barplots of the RFI values for EACH sample or antibody and 
+#' writes to either pdf or the current graphics device.
 #' 
 #' @param tidydf Tidy dataframe of RFI values to plot.
 #' @param RFIcol Column name of the RFI column as string.
 #' @param pdfoutput Single logical indicating whether the plots should be
-#'     output to separate pdf file or printed in console.
+#'     output to pdf file or the current graphics device.
 #' 
 #' 
-#' @describeIn plotperSample Generate a barplot of the RFI value for each 
-#'     antibody, one barplot per sample. Save in a file called 
-#'     'plotPerSample.pdf' if pdfoutput=TRUE.
+#' @describeIn plotperSample Create a barplot of the RFI values of each 
+#'     antibody. One barplot is created for each sample. Write to a file called 
+#'     'plotPerSample.pdf' or the current graphics device.
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
@@ -61,8 +60,8 @@ plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
   
 }
 
-#' @describeIn plotperSample Creates a barplot of the RFI value for each 
-#'     sample, one barplot per antibody. Writes to either a pdf called 
+#' @describeIn plotperSample Creates a barplot of the RFI values of each 
+#'     sample. One barplot is created for each antibody. Writes to either a pdf called 
 #'     'plotPerAB.pdf' or the current graphics device.
 #' @export
 plotperAB <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {

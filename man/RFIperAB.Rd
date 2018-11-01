@@ -17,9 +17,11 @@ RFIperSample(tidydf, RFIcol = "RFI", fill_by)
 \item{fill_by}{Optional argument. Name of the column, a string, to add to
 the \code{fill} argument in ggplot's \code{aes}.}
 }
+\value{
+Creates plot in current graphics device.
+}
 \description{
-Creates boxplots of raw RFI value for each antibody or each sample in the 
-current graphics device.
+Creates boxplots of raw RFI value for each antibody or each sample.
 }
 \section{Functions}{
 \itemize{
