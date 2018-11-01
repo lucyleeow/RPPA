@@ -20,9 +20,6 @@
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate
-#' @importFrom dplyr group_by
 #' 
 #' 
 #' @export
@@ -42,10 +39,10 @@ df_to_mat <- function(tidydf, logdata, tech_reps) {
   if (tech_reps){
     
     tidydf <- tidydf %>%
-      group_by(X1, AB) %>%
-      mutate(X2 = paste(X1, row_number(), sep = "_")) %>%
+      dplyr::group_by(X1, AB) %>%
+      dplyr::mutate(X2 = paste(X1, row_number(), sep = "_")) %>%
       dplyr::ungroup() %>%
-      select(-X1) %>%
+      dplyr::select(-X1) %>%
       dplyr::rename(X1 = X2)
     
   }
@@ -54,7 +51,7 @@ df_to_mat <- function(tidydf, logdata, tech_reps) {
   # make matrix
   mat <- as.matrix(
     tidydf %>%
-      select(X1, AB, RFI) %>%
+      dplyr::select(X1, AB, RFI) %>%
       tidyr::spread(key = AB, value = RFI)
   )
   

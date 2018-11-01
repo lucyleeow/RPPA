@@ -16,7 +16,6 @@
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
 #' @import ggplot2
-#' @importFrom dplyr filter 
 #'     
 #'  
 #' @export
@@ -43,7 +42,7 @@ plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
     
     print(
       tidydf %>%
-        filter(X1 == unique(tidydf$X1)[i]) %>%    # filter for only sample i
+        dplyr::filter(X1 == unique(tidydf$X1)[i]) %>%    # filter for only sample i
         ggplot(aes_string(y=RFIcol,x="Antibody.Name")) + 
         geom_bar(stat = "identity") +
         labs(title = unique(tidydf$X1)[i], y = "Average RFI", x = "Antibody") +
@@ -87,7 +86,7 @@ plotperAB <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
     
     print(
       tidydf %>%
-        filter(Antibody.Name == unique(tidydf$Antibody.Name)[i]) %>%    # filter for only sample i
+        dplyr::filter(Antibody.Name == unique(tidydf$Antibody.Name)[i]) %>%    # filter for only sample i
         ggplot(aes_string(y=RFIcol,x="X1")) + 
         geom_bar(stat = "identity") +
         labs(title = unique(tidydf$Antibody.Name)[i], y = "RFI", 

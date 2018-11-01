@@ -18,9 +18,6 @@
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate
-#' @importFrom dplyr group_by
-#' @importFrom dplyr select
 #'
 #' @export
 norm_med <- function(tidydf, col_name = "RFI") {
@@ -38,11 +35,11 @@ norm_med <- function(tidydf, col_name = "RFI") {
   
   # perform normalisation
   norm_df <- tidydf %>%
-    group_by(X1) %>%
-    mutate(med = median(RFI)) %>%
+    dplyr::group_by(X1) %>%
+    dplyr::mutate(med = median(RFI)) %>%
     dplyr::ungroup() %>%
-    mutate(col_name = RFI/med) %>%
-    select(-med)
+    dplyr::mutate(col_name = RFI/med) %>%
+    dplyr::select(-med)
   
   
   return(norm_df)

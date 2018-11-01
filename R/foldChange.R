@@ -24,9 +24,6 @@
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
 #' @importFrom rlang !!
-#' @importFrom dplyr mutate
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @import ggplot2
 #' 
 #' 
@@ -72,7 +69,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
   
   # convert to wide format
   wide_df <- tidydf %>%
-    select(X1, !!(as.name(RFI_col)), AB) %>%
+    dplyr::select(X1, !!(as.name(RFI_col)), AB) %>%
     tidyr::spread(value = !!(as.name(RFI_col)), key = AB)
   
   # convert to matrix
@@ -192,8 +189,8 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   
   # main plot
   gg <- fc_df %>%
-    mutate(sampComp = paste(Sample2, "vs", Sample1)) %>%
-    filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
+    dplyr::mutate(sampComp = paste(Sample2, "vs", Sample1)) %>%
+    dplyr::filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
     ggplot(aes(y = FoldChange, x = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
     coord_flip() +

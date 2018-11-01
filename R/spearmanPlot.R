@@ -56,15 +56,15 @@ spearmanPlot <- function(tidydf, RFI1, RFI2){
   
   # generate ranks
   rankdf <- tidydf %>%
-    group_by(AB) %>%  # each group contains RFI values for 1 AB but across 
+    dplyr::group_by(AB) %>%  # each group contains RFI values for 1 AB but across 
                       # ALL samples. Thus the rank is across samples.
-    mutate(Rank1 = rank(!!(as.name(RFI1))))
+    dplyr::mutate(Rank1 = rank(!!(as.name(RFI1))))
   
   if (! missing(RFI2)){
     
     rankdf <- rankdf %>%
-      group_by(AB) %>%
-      mutate(Rank2 = rank(!!(as.name(RFI2))))
+      dplyr::group_by(AB) %>%
+      dplyr::mutate(Rank2 = rank(!!(as.name(RFI2))))
     
   }
   

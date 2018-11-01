@@ -25,9 +25,6 @@
 #' 
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
-#' @importFrom dplyr mutate
-#' @importFrom dplyr summarise
-#' @importFrom dplyr group_by
 #' 
 #' 
 #' @export
@@ -60,15 +57,15 @@ tidyData <- function(df, ABnames, Batch = "A", ave_reps = FALSE, pheno) {
   
   gather_df <- df %>%
     tidyr::gather(2:numcols, key = "AB", value = "RFI") %>%
-    mutate(Batch = Batch)
+    dplyr::mutate(Batch = Batch)
   
   # average technical replicates
   if (ave_reps){
     
     gather_df <- gather_df %>%
-      group_by(AB,X1) %>%
-      summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
-      mutate(Batch = Batch)
+      dplyr::group_by(AB,X1) %>%
+      dplyr::summarise(RFI = mean(RFI, na.rm = TRUE)) %>%
+      dplyr::mutate(Batch = Batch)
     
   } 
   
