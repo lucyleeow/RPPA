@@ -188,10 +188,10 @@ calcFC <- function(tidydf, comparisons, logdata = FALSE, RFI_col = "RFI",
 plotFC <- function(fc_df, comparisons, logdata = FALSE, normalised = FALSE) {
   
   # check inputs
-  assert_that(sum(c("Condition","comp1","comp2", "FoldChange", "AB",
-                    "Sample") %in% colnames(fc_df)) == 5, 
+  assert_that(sum(c("comp1","comp2", "FoldChange", "AB",
+                    "Sample") %in% colnames(fc_df)) == 4, 
               msg = "'fc_df' should have one of each of the following columns: 
-              'Condition', 'comp1','comp2' & 'FoldChange'. It should also 
+              'comp1','comp2' & 'FoldChange'. It should also 
               have EITHER a 'AB' or 'Sample' column")
   
   assert_that(is.character(comparisons[,1]),
