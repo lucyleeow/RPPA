@@ -9,7 +9,7 @@
 #'     (samples with the same sample name).
 #' @param comparisons Dataframe with 2 columns and n rows, where n is the 
 #'     number of desired comparisons. The fold change to be calculated will be
-#'     column 2 divided by column 1, for each comparison/row.
+#'     column 1 divided by column 2, for each comparison/row.
 #' @param log Single logical indicating whether the fold change should be 
 #'     logged (base 2).
 #' @param RFI_col Name of column containing RFI values, as string.
@@ -94,14 +94,14 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
       if (log){
         
         # subtract if log
-        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] - 
-          numeric_mat[rownames(numeric_mat) == cond1,]
+        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond1,] - 
+          numeric_mat[rownames(numeric_mat) == cond2,]
         
       } else {
         
         # divide if raw
-        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond2,] / 
-          numeric_mat[rownames(numeric_mat) == cond1,]
+        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == cond1,] / 
+          numeric_mat[rownames(numeric_mat) == cond2,]
         
       }
   }
@@ -118,7 +118,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
       
   for (i in 1:num_comparisons){
     
-    condition[i] <- pheno[pheno$Lysate.ID == comparisons[i,2], "Condition"]
+    condition[i] <- tidydf[tidydf$X1 == comparisons[i,2], "Condition"]
     
   }
   
@@ -150,7 +150,7 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   # check inputs
   assert_that(sum(c("Condition","Sample1","Sample2","AB", 
                                 "FoldChange") %in% colnames(fc_df)) == 5,
-                          msg = "'fc_df' should have on of each of the 
+                          msg = "'fc_df' should have one of each of the 
                                 following columns: 'Condition',
                                 'Sample1','Sample2','AB' & 'FoldChange'")
   
@@ -189,7 +189,7 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   
   # main plot
   gg <- fc_df %>%
-    dplyr::mutate(sampComp = paste(Sample2, "vs", Sample1)) %>%
+    dplyr::mutate(sampComp = paste(Sample1, "vs", Sample2)) %>%
     dplyr::filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
     ggplot(aes(y = FoldChange, x = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
