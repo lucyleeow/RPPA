@@ -9,7 +9,9 @@
 #'     (samples with the same sample name).
 #' @param comparisons Dataframe with 2 columns and n rows, where n is the 
 #'     number of desired comparisons. The fold change to be calculated will be
-#'     column 1 divided by column 2, for each comparison/row.
+#'     column 1 divided by column 2, for each comparison/row. For \code{plotFC}
+#'     only the rows of the comparisons dataframe that you wish to plot should
+#'     be given.
 #' @param log Single logical indicating whether the fold change should be 
 #'     logged (base 2).
 #' @param RFI_col Name of column containing RFI values, as string.
@@ -190,7 +192,7 @@ plotFC <- function(fc_df, comparisons, logged = FALSE, normalised = FALSE) {
   # main plot
   gg <- fc_df %>%
     dplyr::mutate(sampComp = paste(Sample1, "vs", Sample2)) %>%
-    dplyr::filter(sampComp %in% paste(comparisons[,2], "vs", comparisons[,1])) %>%
+    dplyr::filter(sampComp %in% paste(comparisons[,1], "vs", comparisons[,2])) %>%
     ggplot(aes(y = FoldChange, x = sampComp)) +
     geom_bar(stat = "identity", position = "dodge") +
     coord_flip() +

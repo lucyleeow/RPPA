@@ -16,7 +16,9 @@ and phenotype information. There should NOT be any technical replicates
 
 \item{comparisons}{Dataframe with 2 columns and n rows, where n is the 
 number of desired comparisons. The fold change to be calculated will be
-column 1 divided by column 2, for each comparison/row.}
+column 1 divided by column 2, for each comparison/row. For \code{plotFC}
+only the rows of the comparisons dataframe that you wish to plot should
+be given.}
 
 \item{log}{Single logical indicating whether the fold change should be 
 logged (base 2).}
