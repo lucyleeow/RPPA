@@ -17,13 +17,15 @@
 #'     be logged.
 #' @param tech_reps Single logical indicating whether there are technical
 #'     replicates.
+#' @param convert_neg Single logical indicating whether negative values should
+#'     be converted to zero (0).
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
 #' 
 #' 
 #' @export
-df_to_mat <- function(tidydf, logdata, tech_reps) {
+df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg) {
   
   # check inputs
   assert_that(is.logical(logdata),
@@ -59,6 +61,14 @@ df_to_mat <- function(tidydf, logdata, tech_reps) {
   mat <- mat[,-1]
   mode(mat) <- "numeric"
   mat <- t(mat)
+  
+  
+  # convert negative values to 0
+  if (convert_neg) {
+    
+    mat[mat<0] <- 0
+    
+  }
   
   # log result adding prior of 0.00001 to avoid taking log of 0
   
