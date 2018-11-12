@@ -118,7 +118,7 @@ calcFC <- function(tidydf, comparisons, log = FALSE, RFI_col = "RFI",
       
   for (i in 1:num_comparisons){
     
-    condition[i] <- tidydf[tidydf$X1 == comparisons[i,2], "Condition"]
+    condition[i] <- tidydf[tidydf$X1 == comparisons[i,2], "Condition"][1]
     
   }
   
