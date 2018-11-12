@@ -43,19 +43,18 @@ inputPheno <- function(path, sheet, col_remove, condition_cols) {
                           msg = "Check that your sheet contains a 'Lysate.ID' column")
   
   
-  # remove unwanted columns
-  if (! missing(col_remove)){
-    
-    df <- df[, -col_remove]
-    
-  }
-  
-  
   # create condition column
   if (! missing(condition_cols)){
     
     df$Condition <- do.call(paste, c(df[,condition_cols],
                                      sep = "_"))
+    
+  }
+  
+  # remove unwanted columns
+  if (! missing(col_remove)){
+    
+    df <- df[, -col_remove]
     
   }
   
