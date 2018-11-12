@@ -4,7 +4,7 @@
 \alias{df_to_mat}
 \title{Convert tidy dataframe into matrix}
 \usage{
-df_to_mat(tidydf, logdata, tech_reps)
+df_to_mat(tidydf, logdata, tech_reps, convert_neg)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI values to convert to matrix.}
@@ -14,6 +14,9 @@ be logged.}
 
 \item{tech_reps}{Single logical indicating whether there are technical
 replicates.}
+
+\item{convert_neg}{Single logical indicating whether negative values should
+be converted to zero (0).}
 }
 \value{
 A numeric matrix where each row is an antibody and each column is
