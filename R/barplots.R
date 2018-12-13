@@ -29,6 +29,18 @@ plotperSample <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
               msg = "Check 'pdfoutput' is a single logical")
   
   
+  # create RFI_barplots dir if does not exist
+  if (! dir.exists("./RFI_barplots")) {
+    
+    dir.create_out <- dir.create("./RFI_barplots")
+    ## check dir.create worked
+    assert_that(dir.create_out, 
+                msg = "Could not create '/RFI_barplots' folder in your working 
+                directory. Check working directory.")
+    
+  }
+  
+  
   # number of unique samples
   numSample <- length(unique(tidydf$X1))
   
@@ -71,6 +83,18 @@ plotperAB <- function(tidydf, RFIcol = "RFI", pdfoutput = TRUE) {
   
   assert_that(is.logical(pdfoutput), length(pdfoutput) == 1,
               msg = "Check 'pdfoutput' is a single logical")
+  
+  
+  # create RFI_barplots dir if does not exist
+  if (! dir.exists("./RFI_barplots")) {
+    
+    dir.create_out <- dir.create("./RFI_barplots")
+    ## check dir.create worked
+    assert_that(dir.create_out, 
+                msg = "Could not create '/RFI_barplots' folder in your working 
+                directory. Check working directory.")
+    
+  }
   
   
   # number of unique antibodies
