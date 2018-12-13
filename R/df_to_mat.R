@@ -25,7 +25,7 @@
 #' 
 #' 
 #' @export
-df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg) {
+df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE) {
   
   # check inputs
   assert_that(is.logical(logdata),
@@ -35,6 +35,10 @@ df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg) {
   assert_that(is.logical(tech_reps),
                           length(tech_reps) == 1,
                           msg = "Check 'tech_reps' is a single logical")
+  
+  assert_that(is.logical(convert_neg),
+              length(convert_neg) == 1,
+              msg = "Check 'convert_neg' is a single logical")
   
   
   # create unqiue sample names if there are technical replicates

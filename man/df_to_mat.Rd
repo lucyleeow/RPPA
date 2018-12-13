@@ -4,7 +4,7 @@
 \alias{df_to_mat}
 \title{Convert tidy dataframe into matrix}
 \usage{
-df_to_mat(tidydf, logdata, tech_reps, convert_neg)
+df_to_mat(tidydf, logdata, tech_reps, convert_neg = TRUE)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI values to convert to matrix.}
