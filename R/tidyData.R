@@ -1,7 +1,8 @@
 #' Turn wide/matrix RFI data into tidy data
 #' 
 #' Takes wide/matrix RFI data exported from Zeptosens where each row is an
-#' sample and each column is an antibody and turns it into \href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
+#' sample and each column is an antibody and turns it into 
+#' \href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
 #' 
 #' A "Batch" column is added by default so that batches can be identified if
 #' tidy dataframes from several runs are joined together. 
@@ -21,7 +22,8 @@
 #'     of this code will be added to the output dataframe.
 #' @param ave_reps Single logical indicating whether technical replicates 
 #'     (samples with the same names) should be averaged.
-#' @param pheno Dataframe containing information on the sample phenotypes.
+#' @param pheno Dataframe containing information on the sample phenotypes, to 
+#'     merge with the data using sample names.
 #' 
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
