@@ -18,7 +18,8 @@ of this code will be added to the output dataframe.}
 \item{ave_reps}{Single logical indicating whether technical replicates 
 (samples with the same names) should be averaged.}
 
-\item{pheno}{Dataframe containing information on the sample phenotypes.}
+\item{pheno}{Dataframe containing information on the sample phenotypes, to 
+merge with the data using sample names.}
 }
 \value{
 Tidy dataframe with columns containing full antibody names and 
@@ -26,7 +27,8 @@ phenotype information can also be merged into the base RFI dataframe.
 }
 \description{
 Takes wide/matrix RFI data exported from Zeptosens where each row is an
-sample and each column is an antibody and turns it into \href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
+sample and each column is an antibody and turns it into 
+\href{https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html}{tidy data}.
 }
 \details{
 A "Batch" column is added by default so that batches can be identified if
