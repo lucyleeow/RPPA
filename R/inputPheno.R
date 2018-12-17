@@ -39,6 +39,9 @@ inputPheno <- function(path, sheet, col_remove, condition_cols) {
   # read in sheet
   df <- openxlsx::read.xlsx(path, sheet = sheet)
   
+  ## remove white spaces
+  df <- data.frame(lapply(df, trimws, which = "both"))
+  
   assert_that(sum(colnames(df) %in% c("Lysate.ID")) == 1,
                           msg = "Check that your sheet contains a 'Lysate.ID' column")
   
