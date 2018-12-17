@@ -1,28 +1,31 @@
 #' Replicate consistency
 #' 
-#' Determine replicate consistency by calculating the mean, standard deviation
+#' Determine replicate consistency. by calculating the mean, standard deviation
 #' and coefficient of variation (CV).
 #' 
 #' 
 #' 
-#' 
-#' @param tidydf
+#' @param tidydf Tidy dataframe of RFI data.
 #' @param reps Vector of replicate names as string, to calculate consistency of.
 #' @param title Title of the faceted barplot, as string.
-#' 
+#' @param filename Filename of the replicate consistency data (include .tsv at 
+#'     the end).
 #' 
 #' 
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
 #' @import ggplot2
 #' 
-#' 
 
-
-
+#' @describeIn plot_repConst
+#' @export
 plot_repConst <- function(tidydf, reps, title) {
   
   # check inputs
+  assert_that(sum(c("Condition", "Antibody.Name", "RFI") %in% colnames(tidydf))
+              == 3, msg = "Check there are 'Condition', 'Antibody.Name' and 
+                           'RFI' columns in 'tidydf'")
+  
   assert_that(is.character(reps), msg = "Check that 'reps' is a string vector")
   
   assert_that(is.character(title), length(title) == 1,
@@ -43,19 +46,26 @@ plot_repConst <- function(tidydf, reps, title) {
   
 }
 
-
-df_repConst <- function(tidydf, reps) {
+#' @describeIn plot_repConst
+#' @export 
+df_repConst <- function(tidydf, reps, filename) {
   
   # check inputs
+  assert_that(sum(c("Condition", "Antibody.Name", "RFI") %in% colnames(tidydf))
+              == 3, msg = "Check there are 'Condition', 'Antibody.Name' and 
+                           'RFI' columns in 'tidydf'")
+  
   assert_that(is.character(reps), msg = "Check that 'reps' is a string vector")
   
   
-  tidydf %>%
+  const_df <- tidydf %>%
     dplyr::filter(Condition %in% reps) %>%
     dplyr::group_by(Condition, Antibody.Name) %>%
     dplyr::summarise(Mean = mean(RFI), SD = sd(RFI), CV = SD/Mean) %>%
     
-  
+    
+  write.table(const_df, file = filename, sep = "\t", quote = FALSE,
+              row.names = FALSE)
   
 }
 
