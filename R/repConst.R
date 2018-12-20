@@ -20,8 +20,9 @@
 #' @import ggplot2
 #' 
 
-#' @describeIn plot_repConst Faceted bar plot of the mean +/- standard 
-#'     deviation of each condition group, per antibody.
+#' @describeIn plot_repConst Creates a faceted bar plot of the mean +/- 
+#'     standard deviation of each condition group, per antibody (in the current
+#'     graphics device).
 #' @export
 plot_repConst <- function(tidydf, reps, cond_col = "Condition", title) {
   
@@ -53,8 +54,8 @@ plot_repConst <- function(tidydf, reps, cond_col = "Condition", title) {
   
 }
 
-#' @describeIn plot_repConst Write to file the mean, standard deviation and
-#'     coefficient of variation of each condition, per antibody.
+#' @describeIn plot_repConst Write to a tsv file the mean, standard deviation 
+#'     and coefficient of variation of each condition, per antibody.
 #' @export 
 df_repConst <- function(tidydf, reps, cond_col = "Condition", filename) {
   

@@ -29,10 +29,11 @@ group.
 }
 \section{Functions}{
 \itemize{
-\item \code{plot_repConst}: Faceted bar plot of the mean +/- standard 
-deviation of each condition group, per antibody.
+\item \code{plot_repConst}: Creates a faceted bar plot of the mean +/- 
+standard deviation of each condition group, per antibody (in the current
+graphics device).
 
-\item \code{df_repConst}: Write to file the mean, standard deviation and
-coefficient of variation of each condition, per antibody.
+\item \code{df_repConst}: Write to a tsv file the mean, standard deviation 
+and coefficient of variation of each condition, per antibody.
 }}
 
