@@ -2,21 +2,37 @@
 % Please edit documentation in R/repConst.R
 \name{plot_repConst}
 \alias{plot_repConst}
+\alias{df_repConst}
 \title{Replicate consistency}
 \usage{
-plot_repConst(tidydf, reps, title)
+plot_repConst(tidydf, reps, cond_col = "Condition", title)
+
+df_repConst(tidydf, reps, cond_col = "Condition", filename)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI data.}
 
-\item{reps}{Vector of replicate names as string, to calculate consistency of.}
+\item{reps}{Vector of replicate condition names as string, to calculate 
+consistency of.}
+
+\item{cond_col}{Name of the column that contains the condition information.}
 
 \item{title}{Title of the faceted barplot, as string.}
 
-\item{filename}{Filename of the replicate consistency data (include .tsv at 
-the end).}
+\item{filename}{Filename of the replicate consistency data (include '.tsv'
+at the end).}
 }
 \description{
-Determine replicate consistency. by calculating the mean, standard deviation
-and coefficient of variation (CV).
+Explore replicate consistency using the mean, standard deviation and 
+coefficient of variation of the RFI values per antibody of each condition 
+group.
 }
+\section{Functions}{
+\itemize{
+\item \code{plot_repConst}: Faceted bar plot of the mean +/- standard 
+deviation of each condition group, per antibody.
+
+\item \code{df_repConst}: Write to file the mean, standard deviation and
+coefficient of variation of each condition, per antibody.
+}}
+
