@@ -61,7 +61,7 @@ df_repConst <- function(tidydf, reps, cond_col = "Condition", filename) {
   
   # check inputs
   assert_that(sum(c(cond_col, "Antibody.Name", "RFI") %in% colnames(tidydf))
-              == 3, msg = "Check you 'cond_col' and 'Antibody.Name' & 
+              == 3, msg = "Check your 'cond_col' and 'Antibody.Name' & 
                            'RFI' columns exist in 'tidydf'")
   
   assert_that(is.character(reps), msg = "Check that 'reps' is a string vector")
@@ -73,7 +73,7 @@ df_repConst <- function(tidydf, reps, cond_col = "Condition", filename) {
   const_df <- tidydf %>%
     dplyr::filter(!!as.name(cond_col) %in% reps) %>%
     dplyr::group_by(!!as.name(cond_col), Antibody.Name) %>%
-    dplyr::summarise(Mean = mean(RFI), SD = sd(RFI), CV = SD/Mean) %>%
+    dplyr::summarise(Mean = mean(RFI), SD = sd(RFI), CV = SD/Mean)
     
     
   write.table(const_df, file = filename, sep = "\t", quote = FALSE,
