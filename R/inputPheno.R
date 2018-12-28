@@ -13,10 +13,8 @@
 #'     and treatment details concatenated together will be included if the 
 #'     'condition_cols' argument is given. 
 #'     
-
 #' @importFrom assertthat assert_that
-
-
+#'
 #' @export
 inputPheno <- function(path, sheet, col_remove, condition_cols) {
   
