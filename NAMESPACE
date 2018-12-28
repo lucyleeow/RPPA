@@ -3,6 +3,7 @@
 export(GRSN)
 export(RFIperAB)
 export(RFIperSample)
+export(annot_heatmap)
 export(calcFC)
 export(df_repConst)
 export(df_to_mat)
