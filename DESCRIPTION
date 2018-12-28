@@ -15,9 +15,11 @@ LazyData: true
 Imports:
   assertthat,
   dplyr,
+  ggforce,
   ggplot2,
   openxlsx,
   pheatmap,
+  RColorBrewer,
   rlang,
   tidyr
 RoxygenNote: 6.1.0
