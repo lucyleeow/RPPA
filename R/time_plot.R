@@ -67,7 +67,7 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
     
     # RColorBrewer is annoying and gives error if n<2
     if (length(num_conds) <= 2) {
-      pal <- c("#7FC97F", "#BEAED4")
+      pal <- c("#1B9E77", "#D95F02" )
     } else {
       pal <- RColorBrewer::brewer.pal(num_conds, "Dark2")
     }
