@@ -16,7 +16,7 @@
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
-#' @import ggplot
+#' @import ggplot2
 #' 
 #' 
 #' @export
@@ -61,7 +61,7 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
       
     gg <- ggplot(tidydf, aes_string(y = "RFI", x = xcol, 
                                       colour = cond_col)) + 
-      geom_point() + 
+      geom_jitter() + 
       stat_summary(aes_string(group = cond_col), fun.y = mean, geom = 'line') + 
       scale_colour_manual(name = "Condition", 
                           values = RColorBrewer::brewer.pal(num_conds, 
@@ -70,7 +70,7 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
     } else {
       
       gg <- ggplot(tidydf, aes_string(y = "RFI", x = xcol)) + 
-        geom_point() + 
+        geom_jitter() + 
         stat_summary(aes_string(group = 1), fun.y = mean, geom = 'line') + 
         scale_colour_manual(name = "Condition")
       
