@@ -22,7 +22,8 @@ aesthetic, as string. If given will colour the lines by the condition.}
 of zero.}
 }
 \description{
-Creates facetted line graphes over time points, for several conditions, for 
-each antibody. One line graph will be produced per antibody and 12 graphs
-will be displayed per page.
+Creates faceted line graphs over time points for each antibody. Each graph
+can also be coloured by a condition. One line graph will be produced per 
+antibody and 12 graphs will be displayed per page. The graphs will be 
+generated in the current graphics device.
 }

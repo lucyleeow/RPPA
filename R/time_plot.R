@@ -1,8 +1,9 @@
 #' Time series graph
 #' 
-#' Creates facetted line graphes over time points, for several conditions, for 
-#' each antibody. One line graph will be produced per antibody and 12 graphs
-#' will be displayed per page.
+#' Creates faceted line graphs over time points for each antibody. Each graph
+#' can also be coloured by a condition. One line graph will be produced per 
+#' antibody and 12 graphs will be displayed per page. The graphs will be 
+#' generated in the current graphics device.
 #' 
 #' @param tidydf Tidy dataframe of RFI values, containing ONLY the 
 #'     conditions to plot.
@@ -23,7 +24,7 @@
 time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
   
   # check inputs
-  assert_that(sum(c("RFI", xcol, Antibody.Name) %in% colnames(tidydf)) == 3,
+  assert_that(sum(c("RFI", xcol, "Antibody.Name") %in% colnames(tidydf)) == 3,
               msg = "Check 'RFI', 'Antibody.Name' and your 
               'xcol' columns exist in 'tidydf'")
   
@@ -51,6 +52,11 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
   if(log) {
     
     tidydf[["RFI"]] <- log2(tidydf[["RFI"]] + 0.00001)
+    ylab = "log2 RFI"
+    
+  } else {
+    
+    ylab = "RFI"
     
   }
   
@@ -81,6 +87,7 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
     print(
       
       gg +
+        labs(y = ylab, x = xlab) +
         ggforce::facet_wrap_paginate( ~ Antibody.Name, nrow = 4, ncol = 3, 
                                       page = i) +
         theme_minimal() +
