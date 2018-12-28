@@ -64,19 +64,24 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
   if (! missing(cond_col)) {
     
     num_conds <- length(unique(tidydf[[cond_col]]))
+    
+    # RColorBrewer is annoying and gives error if n<2
+    if (length(num_conds) <= 2) {
+      pal <- c("#7FC97F", "#BEAED4")
+    } else {
+      pal <- RColorBrewer::brewer.pal(num_conds, "Dark2")
+    }
       
     gg <- ggplot(tidydf, aes_string(y = "RFI", x = xcol, 
                                       colour = cond_col)) + 
-      geom_jitter() + 
+      geom_point() + 
       stat_summary(aes_string(group = cond_col), fun.y = mean, geom = 'line') + 
-      scale_colour_manual(name = "Condition", 
-                          values = RColorBrewer::brewer.pal(num_conds, 
-                                                            "Dark2"))
+      scale_colour_manual(name = "Condition", values = pal)
       
     } else {
       
       gg <- ggplot(tidydf, aes_string(y = "RFI", x = xcol)) + 
-        geom_jitter() + 
+        geom_point() + 
         stat_summary(aes_string(group = 1), fun.y = mean, geom = 'line') + 
         scale_colour_manual(name = "Condition")
       
