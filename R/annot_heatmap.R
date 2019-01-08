@@ -69,10 +69,15 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
               for 'annot1'")
   
   if (num_annot1 == 2) {
+    
     annot1_colours <- c("#1B9E77", "#D95F02" )
+    names(annot1_colours) <- unique(column_annot[,1])
+    
   } else {
+    
     annot1_colours <- RColorBrewer::brewer.pal(num_annot1, "Dark2")
     names(annot1_colours) <- unique(column_annot[,1])
+    
   }
   
   
@@ -85,7 +90,10 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
               for 'annot1'")
     
     if (num_annot2 == 2) {
+      
       annot2_colours <- c("#A6CEE3", "#1F78B4" )
+      names(annot2_colours) <- unique(column_annot[,2])
+      
     } else {
       annot2_colours <- RColorBrewer::brewer.pal(num_annot2, "Paired")
       names(annot2_colours) <- unique(column_annot[,2])
