@@ -61,17 +61,22 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
   
   
   # make colour vector
+  
+  ## annot1
   num_annot1 <- length(unique(column_annot[,1]))
   
   assert_that(num_annot1 >=2, msg = "Check that there are 2 or more conditions
               for 'annot1'")
   
   if (num_annot1 == 2) {
-    col_annot1 <- c("#1B9E77", "#D95F02" )
+    annot1_colours <- c("#1B9E77", "#D95F02" )
   } else {
-    col_annot1 <- RColorBrewer::brewer.pal(num_annot1, "Dark2")
+    annot1_colours <- RColorBrewer::brewer.pal(num_annot1, "Dark2")
+    names(annot1_colours) <- unique(column_annot[,1])
   }
   
+  
+  ## annot2
   if (! missing(annot2)) {
     
     num_annot2 <- length(unique(column_annot[,2]))
@@ -80,19 +85,21 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
               for 'annot1'")
     
     if (num_annot2 == 2) {
-      col_annot2 <- c("#1B9E77", "#D95F02" )
+      annot2_colours <- c("#A6CEE3", "#1F78B4" )
     } else {
-      col_annot2 <- RColorBrewer::brewer.pal(num_annot2, "Dark2")
+      annot2_colours <- RColorBrewer::brewer.pal(num_annot2, "Paired")
+      names(annot2_colours) <- unique(column_annot[,2])
     }
     
   }
   
-  annot_colors <- list(col_annot1)
+  annot_colours <- list(annot1_colours)
+  names(annot_colours) <- annot1
   
   if (! missing(annot2)) {
     
-    annot_colors[[2]] <- col_annot2
-    
+    annot_colours[[2]] <- annot2_colours
+    names(annot_colours)[2] <- annot2
   }
   
   
@@ -105,7 +112,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
   
   
   pheatmap::pheatmap(mat[!rownames(mat) == "Ab-41",], fontsize = 8, 
-           annotation_col = column_annot, annotation_colors = annot_colors,
+           annotation_col = column_annot, annotation_colors = annot_colours,
            main = title, scale = scale)
   
   
