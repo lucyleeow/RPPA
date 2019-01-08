@@ -34,7 +34,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
     assert_that(is.character(annot2), length(annot2) == 1, 
                 msg = "Check that 'annot2' is a single string")
     
-    assert_that(sum(c(annot1, annot2, "X1") %in% colnames(tidydf)) == 2,
+    assert_that(sum(c(annot1, annot2, "X1") %in% colnames(tidydf)) == 3,
                 msg = "Check X1, 'annot1' and 'annot2' columns exist in 
                 'tidydf'")
   }
