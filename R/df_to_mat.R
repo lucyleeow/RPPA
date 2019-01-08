@@ -19,13 +19,18 @@
 #'     replicates.
 #' @param convert_neg Single logical indicating whether negative values should
 #'     be converted to zero (0).
+#' @param AB_col Name of the column containing antibody name or number,
+#'     as string. These names or numbers will become rownames of the 
+#'     output matrix.
+#'    
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
 #' 
 #' 
 #' @export
-df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE) {
+df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE,
+                      AB_col = "Antibody.Name") {
   
   # check inputs
   assert_that(is.logical(logdata),
@@ -41,11 +46,11 @@ df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE) {
               msg = "Check 'convert_neg' is a single logical")
   
   
-  # create unqiue sample names if there are technical replicates
+  # create unique sample names if there are technical replicates
   if (tech_reps){
     
     tidydf <- tidydf %>%
-      dplyr::group_by(X1, AB) %>%
+      dplyr::group_by(X1, !!as.name(AB_col)) %>%
       dplyr::mutate(X2 = paste(X1, row_number(), sep = "_")) %>%
       dplyr::ungroup() %>%
       dplyr::select(-X1) %>%
@@ -57,8 +62,8 @@ df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE) {
   # make matrix
   mat <- as.matrix(
     tidydf %>%
-      dplyr::select(X1, AB, RFI) %>%
-      tidyr::spread(key = AB, value = RFI)
+      dplyr::select(!!as.name(AB_col), AB, RFI) %>%
+      tidyr::spread(key = !!as.name(AB_col), value = RFI)
   )
   
   rownames(mat) <- mat[,1]
