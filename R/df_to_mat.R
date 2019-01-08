@@ -62,7 +62,7 @@ df_to_mat <- function(tidydf, logdata, tech_reps, convert_neg = TRUE,
   # make matrix
   mat <- as.matrix(
     tidydf %>%
-      dplyr::select(!!as.name(AB_col), AB, RFI) %>%
+      dplyr::select(X1, !!as.name(AB_col), RFI) %>%
       tidyr::spread(key = !!as.name(AB_col), value = RFI)
   )
   
