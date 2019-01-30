@@ -66,7 +66,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
   num_annot1 <- length(unique(column_annot[,1]))
   
   assert_that(num_annot1 >=2, msg = "Check that there are 2 or more conditions
-              for 'annot1'")
+              in 'annot1'")
   
   if (num_annot1 == 2) {
     
@@ -87,7 +87,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
     num_annot2 <- length(unique(column_annot[,2]))
     
     assert_that(num_annot2 >=2, msg = "Check that there are 2 or more conditions
-              for 'annot1'")
+              in 'annot1'")
     
     if (num_annot2 == 2) {
       
