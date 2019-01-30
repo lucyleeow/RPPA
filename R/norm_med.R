@@ -18,6 +18,7 @@
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
+#' @importFrom rlang !!
 #'
 #' @export
 norm_med <- function(tidydf, col_name = "RFI") {
@@ -38,7 +39,7 @@ norm_med <- function(tidydf, col_name = "RFI") {
     dplyr::group_by(X1) %>%
     dplyr::mutate(med = median(RFI)) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(!! as.name(col_name) = RFI/med) %>%
+    dplyr::mutate(!! as.name(col_name) := RFI/med) %>%
     dplyr::select(-med)
   
   
