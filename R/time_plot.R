@@ -14,6 +14,7 @@
 #' @param log Logical indicating whether the RFI data should be logged 
 #'     (base 2). A small number (0.00001) is added to prevent taking the log
 #'     of zero.
+#' @param ylab The y axis label as a single string.
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%
@@ -21,7 +22,7 @@
 #' 
 #' 
 #' @export
-time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
+time_plot <- function(tidydf, xcol, xlab, cond_col, log, ylab) {
   
   # check inputs
   assert_that(sum(c("RFI", xcol, "Antibody.Name") %in% colnames(tidydf)) == 3,
@@ -36,6 +37,9 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
   
   assert_that(is.logical(log), length(log) == 1,
               msg = "Check 'log' is a single logical")
+  
+  assert_that(is.character(ylab), length(ylab) == 1,
+              msg = "Check 'ylab' is a single string")
   
   if (! missing(cond_col)) {
     assert_that(is.character(cond_col), length(cond_col) == 1,
@@ -52,13 +56,8 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log) {
   if(log) {
     
     tidydf[["RFI"]] <- log2(tidydf[["RFI"]] + 0.00001)
-    ylab = "log2 RFI"
     
-  } else {
-    
-    ylab = "RFI"
-    
-  }
+  } 
   
   # make plot
   if (! missing(cond_col)) {

@@ -4,7 +4,7 @@
 \alias{time_plot}
 \title{Time series graph}
 \usage{
-time_plot(tidydf, xcol, xlab, cond_col, log)
+time_plot(tidydf, xcol, xlab, cond_col, log, ylab)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI values, containing ONLY the 
@@ -20,6 +20,8 @@ aesthetic, as string. If given will colour the lines by the condition.}
 \item{log}{Logical indicating whether the RFI data should be logged 
 (base 2). A small number (0.00001) is added to prevent taking the log
 of zero.}
+
+\item{ylab}{The y axis label as a single string.}
 }
 \description{
 Creates faceted line graphs over time points for each antibody. Each graph
