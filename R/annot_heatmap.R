@@ -125,7 +125,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale,
   }
   
   
-  pheatmap::pheatmap(mat[!rownames(mat) == "Ab-41",], fontsize = 8, 
+  pheatmap::pheatmap(mat[!rownames(mat) == "Ab-41",], 
            annotation_col = column_annot, annotation_colors = annot_colours,
            main = title, scale = scale, fontsize = fontsize)
   
