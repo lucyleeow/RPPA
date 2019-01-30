@@ -4,7 +4,7 @@
 \alias{annot_heatmap}
 \title{Annotated heatmap}
 \usage{
-annot_heatmap(mat, tidydf, annot1, annot2, title, scale)
+annot_heatmap(mat, tidydf, annot1, annot2, title, scale, fontsize = 8)
 }
 \arguments{
 \item{mat}{Numeric matrix where each row is an antibody and each column is
@@ -22,6 +22,9 @@ the second annotation data, as string.}
 
 \item{scale}{Logical. If TRUE, the heatmap will be scaled across rows 
 (antibodies), if FALSE no scaling will be done.}
+
+\item{fontsize}{Single numeric indicating the size of the font in the 
+heatmap. Passed to \code{pheatmap()}.}
 }
 \description{
 Generate an annotated heatmap using pheatmap packaged.

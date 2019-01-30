@@ -12,11 +12,14 @@
 #' @param title Title of the graph as string.
 #' @param scale Logical. If TRUE, the heatmap will be scaled across rows 
 #'     (antibodies), if FALSE no scaling will be done.
+#' @param fontsize Single numeric indicating the size of the font in the 
+#'     heatmap. Passed to \code{pheatmap()}.
 #' 
 #' @importFrom assertthat assert_that
 #' 
 #' @export 
-annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
+annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale, 
+                          fontsize = 8) {
   
   # check inputs
   assert_that(is.numeric(mat), is.matrix(mat), 
@@ -26,6 +29,9 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
   
   assert_that(is.character(annot1), length(annot1) == 1, 
               msg = "Check that 'annot1' is a single string")
+  
+  assert_that(is.numeric(fontsize), length(fontsize) == 1, 
+              msg = "Check that 'fontsize' is a single number")
   
   if (missing(annot2)) {
     assert_that(sum(c(annot1, "X1") %in% colnames(tidydf)) == 2,
@@ -121,7 +127,7 @@ annot_heatmap <- function(mat, tidydf, annot1, annot2, title, scale) {
   
   pheatmap::pheatmap(mat[!rownames(mat) == "Ab-41",], fontsize = 8, 
            annotation_col = column_annot, annotation_colors = annot_colours,
-           main = title, scale = scale)
+           main = title, scale = scale, fontsize = fontsize)
   
   
 }
