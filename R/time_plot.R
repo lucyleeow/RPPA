@@ -22,7 +22,7 @@
 #' 
 #' 
 #' @export
-time_plot <- function(tidydf, xcol, xlab, cond_col, log, ylab) {
+time_plot <- function(tidydf, xcol, xlab, cond_col, log, ylab, scales) {
   
   # check inputs
   assert_that(sum(c("RFI", xcol, "Antibody.Name") %in% colnames(tidydf)) == 3,
@@ -93,7 +93,7 @@ time_plot <- function(tidydf, xcol, xlab, cond_col, log, ylab) {
       gg +
         labs(y = ylab, x = xlab) +
         ggforce::facet_wrap_paginate( ~ Antibody.Name, nrow = 4, ncol = 3, 
-                                      page = i) +
+                                      page = i, scales = scales) +
         theme_minimal() +
         theme(axis.text.x = element_text(angle = 40, hjust = 1))
       

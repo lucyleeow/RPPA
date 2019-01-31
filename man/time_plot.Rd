@@ -4,7 +4,7 @@
 \alias{time_plot}
 \title{Time series graph}
 \usage{
-time_plot(tidydf, xcol, xlab, cond_col, log, ylab)
+time_plot(tidydf, xcol, xlab, cond_col, log, ylab, scales)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of RFI values, containing ONLY the 
