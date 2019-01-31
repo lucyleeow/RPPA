@@ -15,6 +15,9 @@
 #'     (base 2). A small number (0.00001) is added to prevent taking the log
 #'     of zero.
 #' @param ylab The y axis label as a single string.
+#' @param scales Are scales shared across all facets (the default, "fixed"), or 
+#'     do they vary across rows ("free_x"), columns ("free_y"), or both rows 
+#'     and columns ("free")? Passed to \code{facet_grid_paginate}.
 #'     
 #' @importFrom assertthat assert_that
 #' @importFrom magrittr %>%

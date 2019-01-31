@@ -22,6 +22,10 @@ aesthetic, as string. If given will colour the lines by the condition.}
 of zero.}
 
 \item{ylab}{The y axis label as a single string.}
+
+\item{scales}{Are scales shared across all facets (the default, "fixed"), or 
+do they vary across rows ("free_x"), columns ("free_y"), or both rows 
+and columns ("free")? Passed to \code{facet_grid_paginate}.}
 }
 \description{
 Creates faceted line graphs over time points for each antibody. Each graph
