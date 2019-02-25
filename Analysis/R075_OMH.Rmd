@@ -1,0 +1,920 @@
+---
+title: 'RPPA analysis: R075 Octavio Mejia'
+author: "Lucy Liu"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: 3
+editor_options:
+  chunk_output_type: inline
+---
+
+\newpage
+
+```{r, echo=FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, dev='cairo_pdf')
+```
+```{r,eval=FALSE}
+library(devtools)
+install_github("lucyleeow/RPPA")
+```
+
+
+```{r, warning=FALSE}
+library(RPPA)
+library(openxlsx)
+library(limma)
+library(pheatmap)
+library(factoextra)
+library(tidyverse)
+library(ggforce)
+library(Cairo)
+
+pal <- c("#000000","#004949","#009292","#ff6db6","#ffb6db",
+ "#490092","#006ddb","#b66dff","#6db6ff","#b6dbff",
+ "#920000","#924900","#db6d00","#24ff24","#ffff6d")
+
+pal2 <- c("#000000", "#800000", "#4363d8", "#f58231", "#808000", "#469990","#000075", "#9A6324", "#911eb4", "#3cb44b", "#e6194B", "#f032e6", "#42d4f4", "#bfef45", "#ffe119", "#a9a9a9", "#e6beff", "#fabebe", "#aaffc3", "#ffd8b1")
+```
+
+# Introduction
+
+The aim of this analysis is to profile protein expression after MDM4 knockdown and MDM4 knockdown + APR-246 treatment and identify deregulated proteins.
+
+The samples and conditions are listed below:
+```{r}
+pheno <- inputPheno("R075_OMH.xlsx", sheet = 4, condition_cols = c(1,9))
+```
+```{r}
+kable(pheno[ , -c(2,6,7:10)])
+```
+
+## Technical details
+
+* Antibody Fox03a (Ab-8) did not perform well and was excluded from all analyses.
+
+# RFI boxplots
+
+## RFI per antibody
+These boxplots show the spread of RFI (normalised to secondary) values across all samples, for each antibody.
+
+Each box is one antibody, and the spread of RFI values across all samples (including all technical replicates) is shown by the box and the 'whiskers'. The box represents the interquartile range, or the middle 50% of the data. The line in the box represents the median. The dots represent RFI (normalised to secondary) values that were more than 1.5 times the interquartile range from the ends of the box.
+
+This plot shows you which proteins were expressed highly in all samples and which proteins were expressed lowly in all samples.
+
+You can also see which proteins had a large range of expression values (i.e. were highly expressed in some samples but lowly expressed in others) by looking at how long the box and whiskers are. For example CD44 had quite a wide range of expression values while TWIST1 was expressed similarly in all samples.
+
+```{r}
+# AB name and code data for all runs
+ABnames <- read.xlsx("../../Antibody Names Condensed.xlsx", sheet = "Sheet2")
+
+# remove dupliates
+ABnames <- ABnames[! duplicated(ABnames$Ab.No.),]
+
+ABnames$Antibody.Name <- trimws(ABnames$Antibody.Name, which = "both")
+ABnames$Ab.No. <- trimws(ABnames$Ab.No., which = "both")
+```
+
+```{r}
+data <- read.xlsx("R075_OMH.xlsx", sheet = 1, startRow = 2)
+
+data$`Ab-8` <- NULL
+
+data_tidy <- tidyData(data, ABnames, pheno = pheno[,c(1,3:5,7,9,10)])
+```
+
+```{r, fig.width=7.5, fig.height=10}
+RFIperAB(data_tidy)
+```
+
+Antibody CD44 was removed due to it's large RFI range and the boxplots re-made.
+
+```{r, fig.width=7.5, fig.height=9}
+RFIperAB(data_tidy[! data_tidy$Antibody.Name == "CD44",])
+```
+
+
+## RFI per sample
+These boxplots show the spread of RFI (normalised to secondary) values across all antibodies, for each sample.
+
+Each box is one sample (both technical replicates for one sample are grouped together), and the spread of RFI values across all antibodies (for both technical replicates of that sample) is shown by the box and the 'whiskers'. The box represents the interquartile range, or the middle 50% of the data. The line in the box represents the median. The dots represent RFI (normalised to secondary) values that were more than 1.5 times the interquartile range from the ends of the box.
+
+This plot shows you if some samples have high RFI (normalised to secondary) values for all antibodies or low RFI (normalised to secondary) values for all antibodies. 
+
+The spread of RFI (normalised to secondary) values for across antibodies appears to be quite similar for all samples but there does appear to be one or two very high RFI values for several samples. 
+
+```{r, fig.width=7.5, fig.height=10.5}
+RFIperSample(data_tidy)
+```
+
+# RFI barplots
+
+These plots can be found in the 'RFI_barplots' folder.
+
+Bar plots were also made of:
+
+* RFI value (normalised to secondary) per sample. Each plot is ONE antibody. The RFI (normalised to secondary) value is shown as a bar for all samples for that one antibody. This is repeated for all antibodies such that there is a separate bar plot for each antibody.
+* RFI value (normalised to secondary) per antibody. Each plot is ONE sample. The RFI (normalised to secondary) value is shown as a bar for all antibodies for that one sample. This is repeated for all sample such that there is a separate bar plot for each sample.
+
+```{r, eval=FALSE}
+plotperSample(data_tidy)
+plotperAB(data_tidy)
+```
+
+
+# Heatmap
+
+Heatmap of logged RFI (normalised to secondary) values. 
+
+Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms. 
+
+```{r}
+data_mat <- df_to_mat(data_tidy, logdata = TRUE, tech_reps = FALSE)
+```
+
+
+```{r, fig.width=8, fig.height=10.5}
+pheatmap(data_mat[!rownames(data_mat) == "Prohibitin",], fontsize = 8)
+```
+
+
+
+## MDS plot by condition
+
+A multidimensional scaling (MDS) plot graphically represents relationships between objects. The distance between two samples approximates their similarity or dissimilarity. 
+
+In the MDS plot below, each letter code represents the sample, as per the submitted sample details table. Each code corresponds to the condition group the sample was in. MDS plot below is also coloured by condition of the sample.
+
+```{r}
+data_mat_reps <- data_mat
+colnames(data_mat_reps) <- pheno[order(pheno$Lysate.ID),9]
+```
+
+```{r}
+groupReps <- factor(colnames(data_mat_reps))
+groupCol <- groupReps
+levels(groupCol) <- pal2[1:20]
+
+plotMDS(data_mat_reps, col = as.character(groupCol), 
+        main = "MDS plot coloured by condition")
+```
+
+# Replicate consistency
+
+The mean, standard deviation and coefficient of variation was calculated for all the samples in each condition group. The file named 'rep_consistency.tsv' contains these 3 calculations for each antibody of each condition group. Note that only condiiton groups which had greater than 1 sample in the group were included.
+
+
+```{r}
+reps <- data_tidy %>%
+  count(Code) %>%
+  mutate(num = n/58) %>%
+  filter(num > 1)
+
+reps <- as.character(reps$Code)
+```
+
+
+```{r, eval=FALSE}
+df_repConst(data_tidy, reps, "Code", "rep_consistency.tsv")
+```
+
+
+## Removal of samples and anitbodies
+
+Due to poor quality, the sample OMH-26 and the antibody ATM/ATR_P were removed for all further analyses.
+
+```{r}
+data_tidy <- data_tidy[! (data_tidy$X1 == "OMH-26" | 
+                       data_tidy$Antibody.Name ==  "ATM/ATR_P"),]
+
+```
+
+## Clustering
+
+Hierarchical clustering was performed on z-score normalised RFI data to explore how well biological replicates correlated. This graph is saved in the file named 'replicate_clust.pdf'. Samples with the same condiitons are coloured the same. 
+
+```{r, eval=FALSE}
+data_norm <- data_tidy %>%
+  select(X1, AB, RFI, Condition, Code) %>%
+  spread(key = AB, value = RFI) %>%
+  reshape::rescaler()
+
+rownames(data_norm) <- data_norm$Condition
+
+clust <- data_norm[,3:60] %>%
+  get_dist(method = "euclidean") %>%
+  hclust(method = "complete")
+```
+
+```{r, eval=FALSE}
+groupConds <- as.factor(data_norm$Code)
+
+levels(groupConds) <- pal2[1:20]
+
+groupConds <- groupConds[clust$order]
+```
+
+
+```{r, eval=FALSE}
+pdf("replicat_clust.pdf", height = 7, width = 10)
+fviz_dend(clust, cex=0.2, horiz = TRUE, 
+          label_cols = as.character(groupConds))
+dev.off()
+```
+
+
+```{r}
+# for all further analysis, Prohibitin will not be required. Thus it will be removed form data_tidy
+
+data_tidy <- data_tidy[! data_tidy$Antibody.Name == "Prohibitin",]
+```
+
+# Heatmap by pathway
+
+A heatmap for each pathway, which only includes the proteins involved in that pathway, is generated and can by found in the file "pathway_heatmaps.pdf". All samples are included in each heatmap but only proteins involved in that pathway are included in each heatmap.
+
+```{r, eval=FALSE}
+ab_path <- read.xlsx("../../Antibody Names Condensed.xlsx", sheet = "Pathways")
+
+ab_path <- unique(ab_path)
+```
+
+```{r, eval=FALSE}
+abs <- data.frame(Antibody = unique(data_tidy$AB), 
+                  AB_name = unique(data_tidy$Antibody.Name),
+                  stringsAsFactors = FALSE)
+
+abs <- merge(abs, ab_path, by.y="Antibody", all = FALSE)
+```
+
+```{r, eval=FALSE}
+abs <- abs %>%
+  group_by(Pathways) %>%
+  mutate(n = n()) %>%
+  filter(n > 1) %>%
+  ungroup()
+
+
+unipaths <- unique(abs$Pathways)
+
+mat0 <- df_to_mat(data_tidy, logdata = TRUE, tech_reps = FALSE)
+
+cairo_pdf("pathway_heatmaps.pdf", onefile = TRUE)
+
+for (i in 1:length(unipaths)){
+ 
+  path_abs <- abs[abs$Pathways == unipaths[i],2]
+  sub_mat <- mat0[rownames(mat0) %in% path_abs[[1]],]
+  pheatmap(sub_mat, fontsize = 7, main = unipaths[i])
+  
+  # annot_heatmap(sub_mat, data_tidy, "Cell.Line.Tissue.type", "Time.point",
+  #             title = unipaths[i], 
+  #             scale = FALSE)
+
+}
+
+dev.off()
+
+```
+
+
+# Breast Cancer Cell Line
+
+The log2 RFI value across the three time points (Day 3, 48h; Day 4, 72h; Day 7, 144h) for the two conditions shMDM4 vs shMx are plotted for each antibody. The RFI values were logged to imrpove visualisation of the lower RFI values (especially since the RFI values of CD44 were so high).
+
+
+```{r}
+# condition codes from this experiment
+exp1 <- c("GC", "GT", "HC", "HT", "IC", "IT")
+```
+
+```{r, fig.height=10.5, fig.width=7.8}
+time_plot(data_tidy[data_tidy$Code %in% exp1,], "Time.point",
+          "Time point", cond_col = "Cell.Line.Tissue.type",
+          log = TRUE, ylab = "log2 RFI", scales = "fixed")
+```
+
+The difference between the RFI values between shMx and shMDM4 conditions, for each timepoint and antibody was calculated. e.g. for antibody p53, the normalised to secondary RFI value of the shMDM4 sample is divided by that of the shMx sample. A result of 0.5 means that the RFI value of shMDM4 is half that of the RFI value of shMx. 
+
+The timepoints and antibodies where the fold change was greater than 2 (i.e. double or half the RFI value in the shMDM4 condition), are listed below.
+
+```{r}
+ # convert to wide format
+wide_df <- data_tidy %>%
+  filter(Code %in% exp1) %>%
+  select(Code, RFI, Antibody.Name) %>%
+  spread(value = RFI, key = Antibody.Name)
+  
+  # convert to matrix
+numeric_mat <- as.matrix(wide_df[,-1])
+rownames(numeric_mat) <- wide_df[,1]
+## transpose data if ABs
+
+comparisons <- data.frame(cond1 = c("GT","HT", "IT"), 
+                          cond2 = c("GC", "HC", "IC"))
+
+
+
+  num_comparisons <- nrow(comparisons)
+  num_ABs <- length(unique(data_tidy$AB))
+  
+  # num_samples <- length(unique(tidydf$X1))
+
+fc_mat <- matrix(nrow = num_comparisons, ncol = num_ABs)
+
+
+  for (i in 1:num_comparisons){
+      
+      comp1 <- comparisons[i,1]
+      comp2 <- comparisons[i,2]
+
+        # divide if raw
+        fc_mat[i,] <- numeric_mat[rownames(numeric_mat) == comp1,] / 
+          numeric_mat[rownames(numeric_mat) == comp2,]
+        
+      
+  }
+
+
+# convert back to df
+  fc_df <- as.data.frame(fc_mat)
+  
+  ## add column names (ABs or samples)
+  colnames(fc_df) <- colnames(numeric_mat)
+  
+fc_df <- cbind(comparisons, fc_df)
+
+fc_df <- fc_df %>%
+  mutate(Comparison = paste(cond1, "vs", cond2, sep = " ")) %>%
+  select(-c(cond1, cond2)) %>%
+  select(Comparison, everything()) 
+
+TimePoint <- c("Day 3", "Day 4", "Day 7")
+
+fc_df <- cbind(TimePoint, fc_df)
+```
+
+
+```{r, eval=FALSE}
+write.table(fc_df, file = "BCCellLine_FoldChange_raw.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+```
+
+```{r}
+fc_df2 <- fc_df %>%
+  gather(3:58,key = "Antibody.Name", value = "Fold_Change")
+
+sigFC <- fc_df2[fc_df2$Fold_Change <= 0.5 | fc_df2$Fold_Change >= 2,]
+
+
+sigFC[order(sigFC$Fold_Change),]
+```
+
+A heatmap of logged RFI (normalised to secondary) values for only the Breast Cancer Cell Line samples. 
+
+Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms.
+
+```{r}
+mat1 <- df_to_mat(data_tidy[data_tidy$Code %in% exp1,], logdata = TRUE,
+                  tech_reps = FALSE)
+```
+
+```{r, fig.height=10, fig.width=7.8, warning=FALSE}
+annot_heatmap(mat1, data_tidy, "Cell.Line.Tissue.type", "Time.point",
+              title = "Breast Cancer cell line", 
+              scale = FALSE)
+```
+
+
+## MDS plot
+
+MDS plot of the six Breast Cancer Cell Line samples. Distance between samples is indicative of the degree of similarity or difference between samples.
+
+```{r}
+mat1_mds <- mat1
+```
+
+```{r}
+groupReps <- factor(colnames(mat1_mds))
+groupCol <- groupReps
+levels(groupCol) <- pal2[1:6]
+
+plotMDS(mat1_mds, col = as.character(groupCol), 
+        main = "MDS plot of Breast Cancer Cell Line samples")
+```
+
+
+# Breast Cancer Mice xenograft 
+
+There are two time points (Early and End) and four conditions in these samples:
+
+1. shMx + PBS
+2. shMx + APR-246
+3. shMDM4 + PBS
+4. shMDM4 + APR-246
+
+```{r}
+exp2 <- c("JE", "JL", "KE", "KL", "LE", "LL", "ME", "ML")
+```
+
+
+Heatmap with all samples. Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms. 
+
+```{r}
+mat2 <- df_to_mat(data_tidy[data_tidy$Code %in% exp2,], logdata = TRUE, tech_reps = FALSE)
+
+mat2 <- mat2[!rownames(mat2) == "Prohibitin",]
+```
+
+```{r, fig.height=10, fig.width=7.8}
+col_annot <- data.frame(
+  Condition = data_tidy[match(colnames(mat2), data_tidy$X1),"Treatment"],
+  TimePoint = data_tidy[match(colnames(mat2), data_tidy$X1),"Time.point"]
+)
+rownames(col_annot) <- colnames(mat2)
+
+c1 <- pal[c(1,6,11,3)]
+names(c1) <- unique(col_annot[,1])
+
+c2 <- pal[c(8,13)]
+names(c2) <- unique(col_annot[,2])
+  
+annot_colors <- list(
+  Condition = c1,
+  TimePoint = c2
+)
+
+annot_colors <- list(c1,c2)
+
+pheatmap(mat2[!rownames(mat2) == "Ab-41",], fontsize = 8, 
+         annotation_col = col_annot, annotation_colors = annot_colors,
+         main = "Breast Cancer Mice xenograft - Early")
+```
+
+
+Heatmap with only early time point samples. Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms. 
+
+```{r}
+mat3 <- df_to_mat(data_tidy[data_tidy$Code %in% exp2 & 
+                              data_tidy$Time.point == "Early point", ],
+                  logdata = TRUE, tech_reps = FALSE)
+```
+
+```{r, fig.height=10, fig.width=7.8}
+col_annot <- data.frame(
+  Condition = data_tidy[match(colnames(mat3), data_tidy$X1),"Treatment"]
+)
+rownames(col_annot) <- colnames(mat3)
+
+c1 <- pal[c(1,6,11,3)]
+names(c1) <- unique(col_annot[,1])
+
+  
+annot_colors <- list(
+  Condition = c1
+)
+
+pheatmap(mat3[!rownames(mat3) == "Ab-41",], fontsize = 8, 
+         annotation_col = col_annot, annotation_colors = annot_colors,
+         main = "Breast Cancer Mice xenograft - Early")
+```
+
+Heatmap with only end time point samples. Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms. 
+
+```{r}
+mat4 <- df_to_mat(data_tidy[data_tidy$Code %in% exp2 & 
+                              data_tidy$Time.point == "Endpoint", ],
+                  logdata = TRUE, tech_reps = FALSE)
+```
+
+```{r, fig.height=10, fig.width=7.8}
+col_annot <- data.frame(
+  Condition = data_tidy[match(colnames(mat4), data_tidy$X1),"Treatment"]
+)
+rownames(col_annot) <- colnames(mat4)
+
+c1 <- pal[c(1,6,11,3)]
+names(c1) <- unique(col_annot[,1])
+
+  
+annot_colors <- list(
+  Condition = c1
+)
+
+pheatmap(mat4[!rownames(mat4) == "Ab-41",], fontsize = 8, 
+         annotation_col = col_annot, annotation_colors = annot_colors,
+         main = "Breast Cancer Mice xenograft - End")
+```
+
+## MDS plot
+
+
+```{r}
+groupReps <- factor( pheno[match(colnames(mat2), pheno$Lysate.ID),9 ] )
+groupCol <- groupReps
+levels(groupCol) <- pal2[1:8]
+
+plotMDS(mat2, col = as.character(groupCol), 
+        main = "MDS plot of Breast Cancer xenograph samples")
+legend("topright", 
+       legend = levels(groupReps), 
+       text.col = levels(groupCol),
+       bty = 'n')
+```
+
+Sample OMH-37 appears distinct from the other samples, most likely due to a very low RFI value in p53. Thus, the MDS is re-created without sample OMH-37.
+
+```{r}
+mat2_mds <- mat2[,!colnames(mat2) == "OMH-37"]
+groupReps <- factor( pheno[match(colnames(mat2_mds), pheno$Lysate.ID),9 ] )
+groupCol <- groupReps
+levels(groupCol) <- pal2[1:8]
+
+plotMDS(mat2_mds, col = as.character(groupCol), 
+        main = "MDS plot of Breast Cancer xenograph samples")
+legend("topright", 
+       legend = levels(groupReps), 
+       text.col = levels(groupCol), bty = 'n')
+```
+
+## Differential protein expression
+
+### Early point
+
+To investigate differential protein expression, first an ANOVA test to look for differences between the four condition groups, was performed on all 58 antibodies for ONLY the early point samples.
+
+
+```{r}
+exp2_early <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Early point", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_early$Antibody.Name)
+
+exp1_result <- vector(mode = 'list', length = length(abs))
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_early[exp2_early$Antibody.Name == abs[i],c(1,3)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment"]])
+  
+  result <- summary(aov(RFI ~ Treatment, data = a))
+
+  exp1_result[[i]] <- result[[1]]
+ 
+}
+
+names(exp1_result) <- abs
+```
+
+The ten antibodies with the smallest p values are shown below. Both the raw p value and the Benjamini and Hochberg adjusted p values are shown.
+
+```{r}
+b <- sapply(exp1_result, function(x) x$`Pr(>F)`)
+b <- t(b)
+b[,2] <- p.adjust(b[,1], method = "BH")
+colnames(b) <- c("p.value", "adj.p.value")
+head(b[order(b[,1]),], n = 10)
+```
+
+After adjusting for multiple testing, there were no significant antibodies.
+
+```{r, eval=FALSE}
+a <- exp2_early[exp2_early$Antibody.Name == signif1[1],c(1,3)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment"]])
+  
+  result <- aov(RFI ~ Treatment, data = a)
+TukeyHSD(result)
+
+```
+
+
+### Late point
+
+An ANOVA test to look for differences between the four condition groups, was performed on all 58 antibodies for ONLY the end point samples.
+
+```{r}
+exp2_end <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Endpoint", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_end$Antibody.Name)
+
+exp2_result <- vector(mode = 'list', length = length(abs))
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_end[exp2_end$Antibody.Name == abs[i],c(1,3)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment"]])
+  
+  result <- summary(aov(RFI ~ Treatment, data = a))
+
+  exp2_result[[i]] <- result[[1]]
+ 
+}
+
+names(exp2_result) <- abs
+```
+
+```{r}
+b <- sapply(exp2_result, function(x) x$`Pr(>F)`)
+b <- t(b)
+b[,2] <- p.adjust(b[,1], method = "BH")
+colnames(b) <- c("p.value", "adj.p.value")
+head(b[order(b[,1]),], n = 10)
+```
+
+
+
+After adjusting for multiple testing, there were no significant antibodies.
+
+### shMx vs shMDM4
+
+In this comparison the shMx + PBS and shMx + APR-246 groups are compared with the shMDM4 + PBS and shMDM4 + APR-246 groups, using a t-test and assuming equal variances. This is done for early then end point.
+
+Early point:
+
+```{r}
+exp2_sirna_early <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Early point", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_sirna_early$Antibody.Name)
+
+exp2_sirna_early <- exp2_sirna_early %>%
+  mutate(Treatment2 = case_when(
+    Treatment == "shMx + PBS" ~ "shMx",
+    Treatment == "shMx + APR-246" ~ "shMx",
+    Treatment == "shMDM4 + PBS" ~ "shMDM4",
+    Treatment == "shMDM4 + APR-246" ~ "shMDM4"
+  ))
+
+exp2_result <- vector(mode = 'list', length = length(abs))
+
+
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_sirna_early[exp2_sirna_early$Antibody.Name == abs[i],c(1,4)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment2"]])
+  
+  result <- t.test(a$RFI ~ a$Treatment, var.equal = TRUE)
+
+  exp2_result[[i]] <- c(pvalue = result$p.value, result$estimate[1],
+                             result$estimate[2])
+}
+
+names(exp2_result) <- abs
+```
+
+```{r}
+exp2_result <- as.data.frame(exp2_result)
+
+exp2_result$value <- rownames(exp2_result)
+
+exp2_result <- exp2_result %>%
+  gather(1:length(abs), key = "AB", value = "value2") %>%
+  spread(value, value2)
+
+exp2_result$adj.p.val <- p.adjust(exp2_result[,4], method = "BH")
+head(exp2_result[order(exp2_result[,5]),], n = 10)
+```
+
+Endpoint:
+
+```{r}
+exp2_sirna_end <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Endpoint", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_sirna_end$Antibody.Name)
+
+exp2_sirna_end <- exp2_sirna_end %>%
+  mutate(Treatment2 = case_when(
+    Treatment == "shMx + PBS" ~ "shMx",
+    Treatment == "shMx + APR-246" ~ "shMx",
+    Treatment == "shMDM4 + PBS" ~ "shMDM4",
+    Treatment == "shMDM4 + APR-246" ~ "shMDM4"
+  ))
+
+exp2_result <- vector(mode = 'list', length = length(abs))
+
+
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_sirna_end[exp2_sirna_end$Antibody.Name == abs[i],c(1,4)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment2"]])
+  
+  result <- t.test(a$RFI ~ a$Treatment, var.equal = TRUE)
+
+  exp2_result[[i]] <- c(pvalue = result$p.value, result$estimate[1],
+                             result$estimate[2])
+}
+
+names(exp2_result) <- abs
+```
+
+```{r}
+exp2_result <- as.data.frame(exp2_result)
+
+exp2_result$value <- rownames(exp2_result)
+
+exp2_result <- exp2_result %>%
+  gather(1:length(abs), key = "AB", value = "value2") %>%
+  spread(value, value2)
+
+exp2_result$adj.p.val <- p.adjust(exp2_result[,4], method = "BH")
+head(exp2_result[order(exp2_result[,5]),], n = 10)
+```
+
+### PBS vs APR-246
+
+
+In this comparison the shMx + PBS and shMDM4 + PBS groups are compared with the shMx + APR-246 and shMDM4 + APR-246 groups, using a t-test and assuming equal variances. This is done for early then end point.
+
+```{r}
+exp2_drug_early <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Early point", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_drug_early$Antibody.Name)
+
+exp2_drug_early <- exp2_drug_early %>%
+  mutate(Treatment2 = case_when(
+    Treatment == "shMx + PBS" ~ "PBS",
+    Treatment == "shMDM4 + PBS" ~ "PBS",
+    Treatment == "shMx + APR-246" ~ "APR-246",
+    Treatment == "shMDM4 + APR-246" ~ "APR-246"
+  ))
+
+exp2_result <- vector(mode = 'list', length = length(abs))
+
+
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_drug_early[exp2_drug_early$Antibody.Name == abs[i],c(1,4)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment2"]])
+  
+  result <- t.test(a$RFI ~ a$Treatment, var.equal = TRUE)
+
+  exp2_result[[i]] <- c(pvalue = result$p.value, result$estimate[1],
+                             result$estimate[2])
+}
+
+names(exp2_result) <- abs
+```
+
+```{r}
+exp2_result <- as.data.frame(exp2_result)
+
+exp2_result$value <- rownames(exp2_result)
+
+exp2_result <- exp2_result %>%
+  gather(1:length(abs), key = "AB", value = "value2") %>%
+  spread(value, value2)
+
+exp2_result$adj.p.val <- p.adjust(exp2_result[,4], method = "BH")
+head(exp2_result[order(exp2_result[,5]),], n = 10)
+```
+
+End point:
+```{r}
+exp2_drug_early <- data_tidy[data_tidy$Code %in% exp2 & data_tidy$Time.point == "Endpoint", c("RFI", "Antibody.Name", "Treatment")]
+```
+
+
+```{r}
+abs <- unique(exp2_drug_early$Antibody.Name)
+
+exp2_drug_early <- exp2_drug_early %>%
+  mutate(Treatment2 = case_when(
+    Treatment == "shMx + PBS" ~ "PBS",
+    Treatment == "shMDM4 + PBS" ~ "PBS",
+    Treatment == "shMx + APR-246" ~ "APR-246",
+    Treatment == "shMDM4 + APR-246" ~ "APR-246"
+  ))
+
+exp2_result <- vector(mode = 'list', length = length(abs))
+
+
+
+for (i in 1:length(abs)){
+  
+  a <- exp2_drug_early[exp2_drug_early$Antibody.Name == abs[i],c(1,4)]
+  a[["RFI"]] <- log2(a[["RFI"]] + 0.00001)
+  a[["Treatment"]] <- as.factor(a[["Treatment2"]])
+  
+  result <- t.test(a$RFI ~ a$Treatment, var.equal = TRUE)
+
+  exp2_result[[i]] <- c(pvalue = result$p.value, result$estimate[1],
+                             result$estimate[2])
+}
+
+names(exp2_result) <- abs
+```
+
+```{r}
+exp2_result <- as.data.frame(exp2_result)
+
+exp2_result$value <- rownames(exp2_result)
+
+exp2_result <- exp2_result %>%
+  gather(1:length(abs), key = "AB", value = "value2") %>%
+  spread(value, value2)
+
+exp2_result$adj.p.val <- p.adjust(exp2_result[,4], method = "BH")
+head(exp2_result[order(exp2_result[,5]),], n = 10)
+```
+
+
+## in vitro vs in vivo
+
+To explore differences between the breast cancer cell line (in vitro) and mice xenograft (in vivo) samples a heatmap is generated.
+
+The *in vitro* samples were subjected two conditions:
+
+* shMx (control)
+* shMDM4
+
+The in vivo samples were subjected to four conditions, two of which correspond to the *in vivo* conditions:
+
+* shMx + PBS
+* shMDM4 + PBS
+
+All the *in vitro* samples and the *in vivo* samples subjected to the two conditions (list above) were subset and a heatmap generated. 
+
+Both samples and antibodies are clustered using hierarchical clustering and this is shown on the row and column dendrograms. 
+
+```{r}
+exp3 <- c(exp1, "JE", "JL", "LE", "LL")
+```
+
+```{r}
+mat5 <- df_to_mat(data_tidy[data_tidy$Code %in% exp3,], logdata = TRUE, tech_reps = FALSE)
+```
+
+
+```{r, fig.height=10, fig.width=7.8}
+col_annot <- data.frame(
+  Condition = data_tidy[match(colnames(mat5), data_tidy$X1),"Treatment"],
+  TimePoint = data_tidy[match(colnames(mat5), data_tidy$X1),"Time.point"]
+)
+rownames(col_annot) <- colnames(mat5)
+
+c1 <- pal[c(1,6,11)]
+names(c1) <- unique(col_annot[,1])
+
+c2 <- pal[c(4,9,14,2,7)]
+names(c2) <- unique(col_annot[,2])
+  
+annot_colors <- list(
+  Condition = c1,
+  TimePoint = c2
+)
+
+pheatmap(mat5[!rownames(mat5) == "Ab-41",], fontsize = 8, 
+         annotation_col = col_annot, annotation_colors = annot_colors, 
+         main = "Breast cancer - in vivo vs in vitro")
+```
+
+
+
+```{r, eval=FALSE}
+layout(matrix(c(1:12),nrow=3,ncol=4))
+
+for (i in 1:12) {
+
+  corVect <- corrList[[i]]
+  plot(rep(1,length(corVect)), corVect, bty='n',
+       ylim = c(0.2,1), xlim = c(0.9,1.1), main = reps$code[i])
+  
+}
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
