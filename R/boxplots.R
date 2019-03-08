@@ -55,7 +55,7 @@ RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by) {
 
 #' @describeIn RFIperAB Creates a boxplot for each sample.
 #' @export
-RFIperSample <- function(tidydf, RFIcol = "RFI", fill_by) {
+RFIperSample <- function(tidydf, RFIcol = "RFI", order, fill_by) {
   
   # check inputs
   assert_that(RFIcol %in% colnames(tidydf) == 1,

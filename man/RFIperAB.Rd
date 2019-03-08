@@ -7,7 +7,7 @@
 \usage{
 RFIperAB(tidydf, RFIcol = "RFI", fill_by)
 
-RFIperSample(tidydf, RFIcol = "RFI", fill_by)
+RFIperSample(tidydf, RFIcol = "RFI", order, fill_by)
 }
 \arguments{
 \item{tidydf}{Tidy dataframe of raw RFI values.}
