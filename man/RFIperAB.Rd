@@ -5,7 +5,7 @@
 \alias{RFIperSample}
 \title{Generate boxplots of RFI values}
 \usage{
-RFIperAB(tidydf, RFIcol = "RFI", order, fill_by)
+RFIperAB(tidydf, RFIcol = "RFI", fill_by)
 
 RFIperSample(tidydf, RFIcol = "RFI", fill_by)
 }
@@ -14,11 +14,11 @@ RFIperSample(tidydf, RFIcol = "RFI", fill_by)
 
 \item{RFIcol}{Name of the column, as string, containing RFI values.}
 
-\item{order}{Vector of sample names, in the order that they are to appear on
-the graph.}
-
 \item{fill_by}{Optional argument. Name of the column, a string, to add to
 the \code{fill} argument in ggplot's \code{aes}.}
+
+\item{order}{Vector of sample names, in the order that they are to appear on
+the graph.}
 }
 \value{
 Creates plot in current graphics device.
