@@ -242,12 +242,12 @@ plotFC <- function(fc_df, comparisons, logdata = FALSE, normalised = FALSE) {
   if (sum(colnames(fc_df) == "AB") == 1) {
     
     gg <- gg + 
-      facet_wrap(.~Antibody.Name) 
+      facet_wrap(.~Antibody.Name, ncol = 4) 
     
   } else if (sum(colnames(fc_df) == "Sample") == 1) {
     
     gg <- gg +
-      facet_wrap(.~Sample)
+      facet_wrap(.~Sample, ncol = 4)
   }
   
   return(gg)
