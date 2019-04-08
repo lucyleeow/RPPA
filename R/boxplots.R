@@ -48,8 +48,8 @@ RFIperAB <- function(tidydf, RFIcol = "RFI", fill_by) {
     labs(title = "RFI per AB", y = "RFI", x = "Antibody") +
     coord_flip() +
     theme(plot.title = element_text(hjust = 0.5), 
-          title = element_text(size=16),
-          axis.text.y = element_text(size = 11))
+          title = element_text(size=14),
+          axis.text.y = element_text(size = 8))
   
 }
 
@@ -90,6 +90,6 @@ RFIperSample <- function(tidydf, RFIcol = "RFI", order, fill_by) {
     scale_x_discrete(limits = order) + 
     coord_flip() +
     theme(plot.title = element_text(hjust = 0.5), 
-          title = element_text(size=16),
-          axis.text.y = element_text(size = 11))
+          title = element_text(size=14),
+          axis.text.y = element_text(size = 8))
 }
