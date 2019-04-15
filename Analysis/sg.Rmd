@@ -1,0 +1,780 @@
+---
+title: "RPPA Analysis: Stuart Gallagher"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 3
+author: Lucy Liu
+bibliography: rppa.bib
+---
+
+\newpage
+
+# Introduction
+The aim of this analysis is to investigate the protein expression of ~52 melanoma cell lines. The data from this experiment will be used to explore a number of research questions:
+
+1. A portion of cell lines (11 cell lines) have been treated with IBET151. The researcher would like to investigate how protein expression differs between treatment with IBET151 vs DMSO.  
+(Note: of the 11 cell lines treated with IBET151, there are only 3 that were also treated with DMSO - C106M, A06M & D14M2. All cell lines treated with DMSO were at time point 48h while the IBET151 treated cell lines were at 24h) 
+2. Is sensitivity of specific cell lines to a certain drug correlated to protein expression?
+3. Is the mutation status/transcriptional signature of the melanoma cell lines correlated to its protein expression profile?
+
+## Experiment design
+There were two biological replicates in this experiment. The samples are detailed below:
+```{r, echo=FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,fig.align='center')
+```
+
+```{r, warning=FALSE}
+library(tidyverse)
+library(openxlsx)
+library(reshape2)
+library(limma)
+library(gplots)
+library(pheatmap)
+
+pal <- c("#000000","#004949","#009292","#ff6db6","#ffb6db",
+ "#490092","#006ddb","#b66dff","#6db6ff","#b6dbff",
+ "#920000","#924900","#db6d00","#24ff24","#ffff6d")
+```
+```{r}
+# Read in AB ID and names
+ab <- read.xlsx("Lucy_StuartGallagher/StuartGallagher_TotalRunData.xlsx", sheet = "Sheet2")
+
+# Remove duplicates
+ab <- ab[!duplicated(ab[,1]),]
+
+# Some protein names at duplicated but there are actually 2 different ABs targeting the protein.
+# Update this so the 2 AB names are different
+
+# The AB's with the same protein targets are:
+# Ab-31 & Ab-18
+# Ab-113 & Ab-20
+# Ab-29 & Ab-93
+
+ab[ab$Ab.No. == "Ab-18",2] <- "Akt_P Ser473 XP"
+
+ab[ab$Ab.No. == "Ab-93",2] <- "Stat3_P Tyr705 R"
+
+ab[ab$Ab.No. == "Ab-113",2] <- "p44/42 MAPK (Erk1/2)_P Thr202/Tyr204 2"
+```
+
+```{r}
+# experiment design data 
+exp <- read.xlsx("Lucy_StuartGallagher/StuartGallagher_TotalRunData.xlsx", sheet = "Sheet1")
+kable(exp[1:70,1:4])
+```
+
+# Batches
+There were 2 main batches in the RPPA experiment. Note, in the pilot batch ('Batch 1'), 4 ABs were tested but were all repeated in batch 2. The 2 batches were thus: 
+
+* Batch 2: Full run of all ABs
+* Batch 3: Samples and AB's that did not perform well in batch 2 are repeated in batch 3
+
+First, we will compare the RFI values of the positive control AB (Prohibitin) in all batches. Note that Batch 2 was very large and Prohibitin was run 4 times, twice in the first run of ABs and twice in the second run of ABs.
+```{r}
+# read in data
+# b1 <- read.xlsx("Lucy_StuartGallagher/StuartGallagher_TotalRunData.xlsx", sheet = "R061_NormToSec", startRow = 2)
+b2 <- read.xlsx("Lucy_StuartGallagher/StuartGallagher_TotalRunData.xlsx", sheet = "R062_NormToSec", startRow = 2)
+b3 <- read.xlsx("Lucy_StuartGallagher/StuartGallagher_TotalRunData.xlsx", sheet = "R065_NormToSec", startRow = 2)
+```
+
+```{r}
+# Tidy data format
+
+# Change name of prohibin
+# colnames(b1)[6] <- "Ab-41-B1"
+# 
+# b1Tidy <- b1 %>%
+#   gather(`Ab-32`:`Ab-41-B1`, key = "AB", value = "RFI") %>%
+#   mutate(Batch = 1) %>%
+#   mutate(Sample = rep(paste("S",rep(1:70), sep=""), 10))
+
+# Batch2 has 4 prohibins:
+colnames(b2)[91:94] <- c("Ab-41-B2-1","Ab-41-B2-2","Ab-41-B2-3","Ab-41-B2-4")
+
+b2Tidy <- b2 %>%
+  gather(`Ab-42`:`Ab-112`, key = "AB", value = "RFI") %>%
+  mutate(Batch = 2) %>%
+  mutate(Sample = rep(paste("S",rep(1:70), sep=""), 246)) %>%
+  mutate(SamOrder = rep(1:140, 123))
+
+# Batch 3
+#which(colnames(b3) == "Ab-41")
+colnames(b3)[17] <- "Ab-41-B3"
+
+b3Tidy <- b3 %>%
+  gather(`Ab-130`:`Ab-41-B3`, key = "AB", value = "RFI") %>%
+  mutate(Batch = 3) %>%
+  mutate(Sample = rep(paste("S",rep(1:70), sep=""), 32)) %>%
+  mutate(SamOrder = rep(1:140, 16))
+```
+
+```{r}
+# Join all dfs together. Note that there will be many NA's in b2 and b3 
+full <- rbind(b2Tidy,b3Tidy)
+
+# Add row of AB names
+full <- merge(full, ab, by.x = "AB", by.y = "Ab.No.", all.y = FALSE, all.x = TRUE)
+
+# Add row of cell line names
+full <- merge(full, exp[,-4], by.x = "X1", by.y = "Lysate.ID")
+
+full <- full %>%
+  mutate(Sample1 = paste(Sample,`Cell.Line/Tissue.type`,Treatment, sep = "-"))
+
+# Add prohibitin for all the Ab-41 columns
+# Different name for each
+full$Antibody.Name[grep("Ab-41-B2-1", full$AB)] <- "Prohibitin_B21"
+full$Antibody.Name[grep("Ab-41-B2-2", full$AB)] <- "Prohibitin_B22"
+full$Antibody.Name[grep("Ab-41-B2-3", full$AB)] <- "Prohibitin_B23"
+full$Antibody.Name[grep("Ab-41-B2-4", full$AB)] <- "Prohibitin_B24"
+full$Antibody.Name[grep("Ab-41-B3", full$AB)] <- "Prohibitin_B3"
+
+#save(full, file = "full.rdata")
+```
+
+
+```{r}
+full %>%
+  filter(grepl("Ab-41", full$AB)) %>%
+  mutate(b=rep(c("B2_1","B2_2","B2_3","B2_4","B3"), each = 140)) %>%
+  ggplot(aes(y=RFI, x = b)) + 
+  geom_boxplot() +
+  labs(title = "Prohibitin expression in each batch", x="Batch") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+The prohibitin expression across all batches are quite similar, which suggests that there were no significant batch effects.
+
+Most ABs were tested soley within batch 2. This makes it difficult to investigate batch effects as we do not know if the difference in RFI values between batches is due to between array variation or differences in protein expression. 
+There were 10 ABs tested on both batch 2 and 3 (e.g. run in batch 2 for replicate 1 samples (i.e. SJG1-SJG70) and in batch 2 for replicate 2 samples (i.e.SJG71-SJG140)). We compare the RFI values of these ABs between the two batches.
+
+```{r,fig.height=18, fig.width = 12}
+fullBatch <- full %>%
+  filter(! grepl("Ab-41", full$AB)) %>%
+  filter(! is.na(RFI)) %>%
+  group_by(Sample1, AB) %>%
+  filter(n_distinct(Batch) > 1)
+
+ggplot(fullBatch, aes(y=RFI, x=Antibody.Name, fill=factor(Batch))) + 
+  geom_boxplot() +
+  scale_fill_manual(values = pal[c(1,6,11)], name = "Batch") +
+  labs(title = "Comparison of RFI between batches for each AB", y = "RFI", x = "Antibody") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size=18)) +
+  coord_flip()
+```
+
+Log RFI values and replot to better visualise ABs with lower RFI values:
+
+```{r,fig.height=18, fig.width = 12}
+fullBatch %>% 
+  #filter(!Antibody.Name == "Akt") %>% 
+  mutate(logRFI = log2(RFI + 0.0001)) %>%
+  ggplot(aes(y=logRFI, x=Antibody.Name, fill=factor(Batch))) + 
+  geom_boxplot() +
+  scale_fill_manual(values = pal[c(1,6,11)], name = "Batch") +
+  labs(title = "Comparison of RFI between batches for each AB", y = "log2(RFI)", x = "Antibody") +
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size=18)) +
+  coord_flip()
+```
+
+Overall, the concordance between batches is not great. However, as mentioned above, it would be difficult to correct for batch effects as the majority of ABs were tested soley in one batch only (thus we do not know if the difference in RFI values between batches is due to between array variation or differences in protein expression). Further, as the vast majority of ABs were tested in batch 2 and the data will be normalised overall for proteins effects, batch correction will not be further considered.
+
+# Data exploration
+
+## RFI for each protein
+A boxplot of the raw RFI values of all samples (both replicates) are plotted for each AB.
+```{r, fig.height=28, fig.width = 20}
+ggplot(full, aes(y=RFI, x=Antibody.Name)) + 
+  geom_boxplot() +
+  coord_flip() +
+  labs(title = "RFI for each AB") +
+   theme(plot.title = element_text(hjust = 0.5), title = element_text(size=16),
+         axis.text.y = element_text(size = 14))
+```
+
+## RFI for each sample
+Average RFI from the two replicates are plotted for each sample.
+```{r, fig.height=24,fig.width = 16}
+full %>%
+  filter(! grepl("Ab-41", full$AB)) %>%
+  group_by(Sample,AB) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  ggplot(aes(y=RFI_ave, x=Sample) ) + 
+  geom_boxplot() +
+  labs(title = "RFI for each sample", y = "RFI", x = "Sample") + 
+  theme(plot.title = element_text(hjust = 0.5), title = element_text(size=18), 
+        axis.text.y = element_text(size = 14)) +
+  coord_flip() 
+ 
+```
+
+## MDS plot of samples
+A multidimensional scaling (MDS) plot graphically represents relationships between objects. The distance between two samples approximates their similarity or dissimilarity. The MDS plot is useful for identifying if there are any distinct groups within our samples.
+
+```{r}
+# Make matrix
+mat <- as.matrix(
+  full %>%
+  filter(! grepl("Ab-41-B2-2", full$AB)) %>%
+  group_by(Sample1,Antibody.Name) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  spread(key = Antibody.Name, value = RFI_ave)  
+)
+
+# Make first column, row names
+#sampleNames <- paste("S", 1:70, sep = "")
+rownames(mat) <- mat[,1]
+mat <- mat[,-1]
+mode(mat) <- "numeric"
+mat <- t(mat)
+
+# groupCond <- as.factor(sampleRob$Condition)
+# group_col <- groupCond
+# levels(group_col) <- colours[1:9]
+# 
+# 
+# plotMDS(mat, col = as.character(group_col), main = "MDS coloured by condition", xlim = c(-1.5,2))
+# legend("topright", 
+#        legend = levels(groupCond), 
+#        text.col = levels(group_col), bty = "n")
+
+plotMDS(mat)
+
+```
+
+Re-plot MDS using sample names S1-S70 so labels are more legible, and colour sample names by treatment (DMSO or IBET151).
+```{r, fig.align='center'}
+mat1 <- mat
+colnames(mat1) <- paste("S", 1:70, sep = "")
+
+#plotMDS(mat1)
+
+group <- as.factor(exp[1:70,3])
+groupCol <- group
+levels(groupCol) <- pal[c(1,11)]
+plotMDS(mat1,
+        col = as.character(groupCol), 
+        main = "MDS plot coloured by treatment")
+legend("bottomleft", 
+       legend = c("DMSO", "IBET151"), 
+       text.col = levels(groupCol))
+```
+
+There does not appear to be distinct groups of cell lines within the experiment. The DMSO and IBET151 treated cell lines also do not appear to separate. This is not unexpected as most of the cell lines in the experiment are different (there are only three cell lines that feature twice in the experiment). This may be the reason that the IBET151 treated cell lines do not cluster separately from the DMSO treated cell lines.
+
+## Heatmap
+Heatmap and dendogram of raw RFI values.
+
+```{r, fig.height=34, fig.width=25}
+pheatmap(mat, fontsize = 14)
+```
+
+To aid in better discriminating the range of RFI values, a heatmap of log 2 RFI values is plotted as well.
+```{r, fig.height=34, fig.width=25}
+pheatmap(log2(mat + 0.0001), fontsize = 14)
+```
+
+# Normalisation
+There are three primary factors that need to be normalised for in an RPPA experiment [@liu_comprehensive_2014,@wachter_analysis_2015]: 
+
+1. Spatial bias: Differences in intensity caused by location of the lysate spot on the slide (e.g. rim effects). The Zepto system already accounts for this using the BSA control spots, thus spatial normalisation will not be further considered.
+2. Total amount of protein (loading) of different samples on the slides: Although the total proteins in the lysate are gauged before they are printed, this is confounded by lipids and other biological materials in the samples. Thus, the total protein measurement is only a rough estimate.
+3. Non linearity of variances: A MA (differences versus means) plot of the differences (M) in intensity of ABs between two samples varies across the spectrum of A, the mean intensity of the two samples. This is especially the case at the upper range and sometimes the lower range of A. 
+This can be seen best when comparing a pair of technical replicates. As there would not be any differential expression, you would expect their intensities to be equal. Some imbalance often occurs and this imbalance may vary depending on the average intensity (A). Variation in the imbalance 
+When normalised well all the points of a MA plot should align with a horizontal line and be evenly distributed about this line. 
+
+## Normalisation methods
+
+### Housekeeping protein
+This normalisation methodology is based on the assumption that the levels of housekeeping (HK) proteins such as $\beta$-Actin is uniform across samples and experiment conditions. Thus any differences in level of these housekeeping proteins is due to differing amounts of protein loading. Our previous experience suggests that HK proteins that are effective in western blots are not in RPPA due to the increased sensitivey of RPPA.
+
+### Median normalisation
+This method assumes that all measured proteins reflect the total protein amount of one sample. Thus the median AB of a sample estimates sample loading. The median value of all AB signals for a sample is used to normalise the raw intensity values for each AB. This is one of the 'simpliest' methods (involving the least steps) however is biased when the number of ABs is <100 [@liu_comprehensive_2014]. 
+
+### Loading control
+This approach is utilised by MD Anderson. 
+
+Protein effects on intensity are accounted for by dividing all the raw linear intensity by the median for each AB (across all samples). This is the 'median centered ratio'. Sample effects are accounted for by taking the median of the median centered ratios for each sample (across all ABs). This becomes the correction factor for that sample. Raw intensity values are divided by this correction factor to obtain the normalised intensity.
+
+The steps are outlined below:
+
+1. Determine median RFI for each AB (across all samples)
+2. Divide each RFI by the median within each AB to get the 'median-centred ratio'.
+3. Calculate the median median-cetered ratio for each sample (across all ABs). This is the correction factor for each sample.
+4. Divide each median-centred ratio by the correction factor for each sample.
+
+### Invariable protein normalisation
+This methodology was proposed by Liu et al. [@liu_comprehensive_2014] and was originally suggested to normalise microarray data [@pelz_global_2008].
+
+The aim of this methodology is to determine the most uniformly expressed proteins and use these as an effective 'housekeeping' protein to normalise to.
+
+The steps are outlined below:
+
+1. Rank the intensity of ABs for each sample so you have ranked ABs for each sample from the highest expressing AB to lowest expressing AB.
+2. Calculate the variance of the ranks for each AB. Remove the AB with the highest rank variance.
+3. Re-rank the intensity of ABs.
+4. Repeat the steps 2 and 3 until the number of remaining markers reaches a predetermined number (100 kept in Liu et al. study). 
+5. Trim intensities for each AB e.g. the highest and lowest 25% of values are removed from the data set.
+6. Average the remaining values of every AB across all samples and use this as a virtual reference sample.
+7. Normalise each sample to the virtual reference sample by lowess smoothing using a MA plot. The normalised values are generated using the residuals of the fit.
+
+## How to evaluate normalisation methodologies
+To be able to evaluate each normalisation methodology, one must be able to compare how effectively each method normalises for total protein loading and non-linearity of variances. Normalisation of non-linearity of variances is effectively assessed using the MA plot. Normalisation of total protein loading is more difficult to assess and must be done indirectly. Two techniques have beens suggested and are discussed below.
+
+### MA plot
+Normalisation of non-linearity of variances is effectively assessed using a MA plot. A MA plot of replicate samples show the difference in RFI values between the two samples against the average RFI value of the two samples, for each AB. 
+
+### RLE 
+RLE (Relative log expression) plots are effective for the assessment for unwanted variation [@gandolfo_rle_2018]. It plots log expression relative to the median of that AB for each sample. Assuming the expression levels for the majority of proteins are stable across cell lines, the boxplots in a RLE plot should be roughly centered on 0 and would be roughly the same size (height).
+
+### Pairwise correlation coefficients (Spearman $\rho$)
+This plot is used to evaluate the between protein correlations. For each pair of proteins (e.g. for 10 proteins, there would be 45 different possible pairs) the Spearman $\rho$ is calculated across all samples. This is then sorted and plotted. We expect the positive and negative correlation coefficients to be largely equal. If there is an abnormally large number of protein pairs with positive correlation, it may be due to a sample loading effect where some proteins are high in all samples, thus are ranked simiarly highly for those samples. Samples with low loading result in low levels of all proteins, and are ranked similarly low for those samples. There would thus be high correlation between a larger proportion of proteins. We expect protein expression to be inherently different due to expression, phosphorylation levels and/or AB affinity. 
+
+## RLE plots
+
+### Raw data
+
+Plot an RLE graph of the raw data:
+
+```{r, fig.height=18, fig.width=20}
+rle <-  full %>%
+  filter(! grepl("Ab-41", full$AB)) %>%
+  group_by(Sample,AB) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(AB) %>%
+  mutate(Med = median(RFI_ave)) %>%
+  mutate(RLE = log2(RFI_ave+0.0001)-log2(Med+0.0001)) 
+
+ggplot(rle, aes(x = Sample, y = RLE)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14)) +
+  theme(axis.text.y = element_text(size = 14))
+```
+
+There is variation in boxplot position and height and shows taht the data needs to be normalised.
+
+### Median normalisation
+Median normalisation would not change the above plot as the median value of the median normalised expression values (for each AB) is just 1. 
+```{r, fig.height=24, fig.width=20}
+mn <- full %>%
+  group_by(Sample,AB) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(AB) %>%
+  mutate(Med = median(RFI_ave)) %>%
+  mutate(MN = RFI_ave/Med) 
+```
+
+### Loading control normalisation
+Loading control normalisation causes the median value of each sample to be 0, by virtue of the normalisation approach itself. Nonetheless, the height of each boxplot can be used to assess quality of normalisation. Note that for many samples there are 1 or 2 very low RLE values which are excluded from the graph to allow easier comparison.
+```{r, fig.height=24, fig.width=20}
+lc <- full %>%
+  filter(!grepl("Ab-41-B2-2", full$AB)) %>%
+  group_by(Sample,AB) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(AB) %>%
+  mutate(medianAB = median(RFI_ave)) %>%
+  #Find median RFI for each AB
+  ungroup() %>%
+  mutate(medCenter = RFI_ave/medianAB) %>%
+  #Divide RFI by the median AB, for each AB
+  group_by(Sample) %>%
+  mutate(CF = median(medCenter, na.rm = TRUE)) %>%
+  #Find the median medCenter for each sample. Remove NA values
+  ungroup() %>%
+  mutate(LC = medCenter/CF) %>%
+  select(c(AB, Sample, RFI_ave, LC))
+
+
+
+lc %>%
+  group_by(AB) %>%
+  mutate(Med = median(LC)) %>%
+  mutate(RLE = log2(LC+0.0001)-log2(Med+0.0001)) %>%
+  ungroup() %>%
+  ggplot(aes(x = Sample, y = RLE)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  coord_cartesian(ylim = c(-5,6))
+
+```
+
+### Global rank invariant
+
+```{r, fig.height=24, fig.width=20}
+source("function.R")
+grnorm <- GRSN(mat,ReportName = "Sample", count = 50, f = 0.4)
+
+tidyGR <- as.data.frame(grnorm) %>%
+  gather(`S1-C078M-DMSO`:`S9-D38M2-DMSO`, key = "Sample", value = "RFI" )
+
+tidyGR$AB <- rownames(grnorm)
+
+tidyGR %>%
+  group_by(AB) %>%
+  mutate(Med = median(RFI)) %>%
+  mutate(RLE = log2(RFI+0.0001)-log2(Med+0.0001)) %>%
+  ungroup() %>%
+  ggplot(aes(x = Sample, y = RLE)) + 
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 14)) +
+  theme(axis.text.y = element_text(size = 14))
+
+```
+
+## MA plots
+Each point in an MA plot represents an AB. On the y axis is the difference in RFI between two replicates and on the x axis is the mean RFI of the two replicates. For well normalised data, you expect the points to lie along 0 and the variation of points around 0 to be similar along A.
+
+### Raw data
+```{r}
+# Make matrix of full data (rep1 and rep2)
+
+matFull <- as.matrix(
+  full %>%
+  filter(!grepl("Ab-41-B2-2", full$AB)) %>%
+  select(Antibody.Name, SamOrder, RFI, X1, AB) %>%
+  group_by(SamOrder,Antibody.Name) %>%
+  summarise(RFI1 = mean(RFI, na.rm = TRUE)) %>%
+  mutate(logRFI = log2(RFI1+0.0001)) %>%
+  select(-RFI1) %>%
+  spread(key = Antibody.Name, value = logRFI)
+)
+
+
+rownames(matFull) <- b2Tidy$X1[1:140]
+matFull <- matFull[,-1]
+mode(matFull) <- "numeric"
+matFull <- t(matFull)
+
+```
+```{r, out.width="33%", fig.align="default"}
+for (i in 1:70){
+  plotMA(matFull[,c(i,70+i)])
+}
+```
+
+A number of sample pairs have unusual MA plot patterns and are further investigated here:
+
+The RFI values for sample 6 and 76 are plotted:
+```{r}
+plot(matFull[,6],matFull[,76])
+```
+
+Can see from the above plot that sample 6 has a large number of uniformly low AB expression values. 
+
+A similar pattern is seem for samples 7 & 77 and 8 & 78:
+```{r, out.width="50%", fig.align="default"}
+plot(matFull[,7],matFull[,77])
+plot(matFull[,8],matFull[,78])
+```
+
+For sample's 20 & 90, 28 & 98 and 58 & 128, there is a similar cause to their unusual MA plots, except it is the second replicate that has the uniformly low RFI values.
+
+These plots suggest that it may be appropriate to remove an entire replicate and/or entire AB's that have a large proportion of low/NA RFI values. This is explored further in the "Filtering" document.
+
+### Median normalisation
+
+```{r, out.width="33%", fig.align="default"}
+
+mnFull <-  full %>%
+  filter(!grepl("Ab-41-B2-2", full$AB)) %>%
+  select(SamOrder, RFI, X1, AB) %>%
+  group_by(SamOrder,AB) %>%
+  summarise(RFI1 = mean(RFI, na.rm = TRUE)) %>%
+  group_by(AB) %>%
+  mutate(Med = median(RFI1)) %>%
+  mutate(MN = RFI1/Med) %>%
+  mutate(logMN = log2(MN))
+
+
+mnFull_mat <- as.matrix(
+  mnFull %>%
+    select(SamOrder,AB,logMN) %>%
+    spread(key = SamOrder, value = logMN)
+  
+)
+
+mnFull_mat <- mnFull_mat[,-1]
+mode(mnFull_mat) <- "numeric"
+colnames(mnFull_mat) <- b2Tidy$X1[1:140]
+
+# Make MA plots
+for (i in 1:70){
+  
+plotMA(mnFull_mat[,c(i,70+i)], main = colnames(mnFull_mat)[i]) 
+
+}
+
+```
+
+### Loading control normalisation
+
+```{r, out.width="33%", fig.align="default"}
+
+lcFull <-  full %>%
+  filter(!grepl("Ab-41-B2-2", full$AB)) %>%
+  select(SamOrder, RFI, AB) %>%
+  group_by(SamOrder,AB) %>%
+  summarise(RFI1 = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(AB) %>%
+  mutate(medianAB = median(RFI1, na.rm = TRUE)) %>%
+  #Find median RFI for each AB
+  ungroup() %>%
+  mutate(medCenter = RFI1/medianAB) %>%
+  #Divide RFI by the median AB, for each AB
+  group_by(SamOrder) %>%
+  mutate(CF = median(medCenter, na.rm = TRUE) + 0.00001) %>%
+  #Find the median medCenter for each sample. Remove NA values
+  #A prior was added to prevent the CF fro being 0
+  ungroup() %>%
+  mutate(LC = medCenter/CF) %>%
+  mutate(logLC = log2(LC))
+
+
+lcFull_mat <- as.matrix(
+  lcFull %>%
+    select(c(AB, SamOrder, logLC)) %>%
+    spread(key = SamOrder, value = logLC)
+  
+)
+
+lcFull_mat <- lcFull_mat[,-1]
+mode(lcFull_mat) <- "numeric"
+colnames(lcFull_mat) <- b2Tidy$X1[1:140]
+
+# Make MA plots
+for (i in 1:70){
+  
+plotMA(lcFull_mat[,c(i,70+i)], main = colnames(lcFull_mat)[i]) 
+
+}
+```
+
+### Global rank invariant
+
+```{r, out.width="33%", fig.align="default"}
+# Change all NA values to 0
+matFull[is.na(matFull)] <- 0
+GR_matFull <- GRSN(matFull,ReportName = "full", count = 50, f = 0.4)
+
+for (i in 1:70){
+  
+plotMA(GR_matFull[,c(i,70+i)], main = colnames(GR_matFull)[i]) 
+
+}
+```
+
+## Pairwise correlation coefficient plots
+
+### Raw data
+
+```{r}
+spearmanRanks <- function(rankdf, c1){
+
+  # Takes in a df where there is a column called "AB" (which contains the names of ABs) and another column of ranks of each AB across all samples and returns a vector of spearman correlations between the ranks of all possible combinations of ABs.
+  
+  
+  # rankdf = dataframe of AB ranks. Each AB is ranked according to expression,     across all samples.
+  # c1 = Name of the column containg the ranks. 
+
+
+  ABcomb <- combn(unique(rankdf$AB),2)
+  # Create matrix of all possible combinations. Resulting matrix will have 2 rows   as we are choosing 2 from vector of unique ABs.
+  
+  c <- vector(mode = "double", length = dim(ABcomb)[2])
+  # Create empty vector length of the number of combinations
+  
+  for (i in 1:dim(ABcomb)[2]){
+  # Cycle i through the number of combinations
+    
+  a <- rankdf[[c1]][rankdf$AB == ABcomb[1,i]]
+  # Note cannot use rankdf$c1 as it will look for the column named "c1". Used instead rankdf[[c1]]. Double brackets returns vector instead of df/tibble
+  b <- rankdf[[c1]][rankdf$AB == ABcomb[2,i]]
+  
+  c[i] <- cor(a,b, method = 'spearman')
+  }
+  
+  return(c)
+  
+}
+
+spearmanPlot <- function(rankdf, c1, legend, comparison = FALSE){
+  
+  a <- spearmanRanks(rankdf = rankdf, c1 = as.character(c1))
+  # gives you vector of correlations for the normalisation method of interest
+  if (comparison){
+  b <- spearmanRanks(rankdf = rankdf, c1 = "RFI")
+  }
+  # gives you vector of correlations for the raw RFI values
+  plot(a[order(a)], ylim = c(-1,1), ylab = "Spearman correlation")
+  if (comparison){
+    points(b[order(b)], col = "Blue")
+    legend("bottomright", legend = c(legend, "Raw"), text.col = c("Black", "Blue"))
+  }
+  abline(0.5,0)
+  abline(-0.5,0)
+  # plot the ordered values.
+  
+}
+```
+
+
+
+```{r}
+
+test <- full %>%
+  filter(! grepl("Ab-41", full$AB)) %>%
+  group_by(Sample1,AB) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(AB) %>%
+  mutate(Rank = rank(RFI_ave)) %>%
+  select(-RFI_ave)
+
+spearmanPlot(test, "Rank", "Raw")
+```
+
+## Median normalisation
+```{r}
+rankmn <- mn %>%
+  group_by(AB) %>%
+  mutate(Rank = rank(MN)) %>%
+  select(Sample,AB,Rank)
+
+spearmanPlot(rankmn, "Rank", "Median")
+```
+
+## Loading control normalisation
+```{r}
+ranklc <- lc %>%
+  group_by(AB) %>%
+  mutate(Rank = rank(LC)) %>%
+  select(-c(RFI_ave, LC))
+  
+spearmanPlot(ranklc, "Rank", "Loading Control")
+```
+
+## Global rank invariant
+
+```{r}
+rankGR <- tidyGR %>%
+    group_by(AB) %>%
+    mutate(Rank = rank(RFI)) %>%
+    select(-RFI)
+
+spearmanPlot(rankGR, "Rank", "GRI")
+```
+
+# Normalised data
+
+## Average replicates then normalise
+Normalise data using Global rank invariant and remove the 5 replicates with much poorer performance than their corresponding pair. Write out the data into a csv file. The steps are as follows:
+
+1. Remove the 5 replicates that performed poorly. There were 5 samples were 1 replicate performed much worse than the other replicate.
+2. Take the mean of the RFI values from the two replicates, for each sample. For samples where 1 replicate was removed, the RFI from the remaining replicate will be used.
+3. Use Global rank invariant to normalise the data.
+4. Write to a csv file.
+
+```{r}
+# Use filtered df generated in the Filtering.Rmd notebook
+load("filtered.rdata")
+# Here we are taking the mean of the RFI values from the 2 replicates
+
+matFiltered <- as.matrix(
+  filtered %>%
+  filter(! grepl("Ab-41-B2-2", filtered$AB)) %>%
+  group_by(Sample1,Antibody.Name) %>%
+  summarise(RFI_ave = mean(RFI, na.rm = TRUE)) %>%
+  spread(key = Antibody.Name, value = RFI_ave)  
+)
+
+# Make first column, row names
+#sampleNames <- paste("S", 1:70, sep = "")
+rownames(matFiltered) <- matFiltered[,1]
+matFiltered <- matFiltered[,-1]
+mode(matFiltered) <- "numeric"
+matFiltered <- t(matFiltered)
+
+# Turn all NA values to 0
+matFiltered[is.na(matFiltered)] <- 0
+```
+
+```{r}
+grnormFiltered <- GRSN(matFiltered,ReportName = "Filtered", count = 50, f = 0.4)
+
+write.table(grnormFiltered, file = "Normalised_SjG_RPPA.csv", quote = FALSE, sep = ",", row.names = TRUE, col.names = NA)
+```
+
+## Normalise both replicates
+Normalise both replicates. We first look at how many NA's each AB has: 
+
+```{r}
+ABremove <- filtered %>%
+  filter(! grepl("Ab-41-B2-2", filtered$AB)) %>%
+  group_by(Antibody.Name,X1) %>%
+  summarise(RFI1 = mean(RFI, na.rm = TRUE)) %>%
+  ungroup() %>%
+  group_by(Antibody.Name) %>%
+  summarise(countNAs = sum(is.na(RFI1)))
+
+a <- ABremove %>%
+  filter(countNAs>0) %>%
+  arrange(desc(countNAs))
+
+a[8,1] <- "N-Cadherin (D4R1H) XP"
+a[15,1] <- "PKC pan_P bII Ser660"
+
+kable(a)
+```
+
+Looking at the number of NA values, I have set the threshold at 30, removing all ABs with more than 30 NA values. The steps are:
+
+1. Remove the 5 replicates that performed poorly. There were 5 samples were 1 replicate performed much worse than the other replicate.
+2. Remove ABs with more than 30 missing values.
+3. Use Global rank invariant to normalise the data.
+4. Write to a tsv file.
+
+```{r}
+repABFilter <- filtered %>%
+  filter(! grepl("Ab-41-B2-2", filtered$AB)) %>%
+  filter(! Antibody.Name %in% ABremove$Antibody.Name[ABremove$countNAs>30]) %>%
+  group_by(Antibody.Name,X1) %>%
+  summarise(RFI1 = mean(RFI, na.rm = TRUE))
+
+# Turn into matrix
+matABrepFiltered <- as.matrix(
+  repABFilter %>%
+  spread(key = Antibody.Name, value = RFI1)  
+)
+
+rownames(matABrepFiltered) <- matABrepFiltered[,1]
+matABrepFiltered <- matABrepFiltered[,-1]
+mode(matABrepFiltered) <- "numeric"
+matABrepFiltered <- t(matABrepFiltered)
+
+# Turn all NAs to 0
+matABrepFiltered[is.na(matABrepFiltered)] <- 0
+```
+
+```{r}
+grnormABrepFiltered <- GRSN(matABrepFiltered,ReportName = "Filtered", count = 50, f = 0.4)
+
+write.table(grnormABrepFiltered, file = "Normalised_allreps_SjG_RPPA.csv", quote = FALSE, sep = "\t", row.names = TRUE, col.names = NA)
+```
+
+```{r}
+library(assertthat)
+source('~/Documents/RPPA/RPPA/R/spearmanPlot.R')
+
+spearmanPlot(lc, "RFI_ave", "LC")
+
+```
+
+
+# References
